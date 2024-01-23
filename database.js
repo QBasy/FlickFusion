@@ -1,43 +1,32 @@
-const { Client } = require('pg');
+const { MongoClient, ObjectId } = require('mongodb');
 
-class Database {
-    constructor() {
-        this.client = new Client({
-            user: 'postgres',
-            host: 'localhost',
-            database: 'webtech2',
-            password: 'japierdole',
-            port: 5432,
-        });
-    }
-    async connect(options) {
-        try {
-            if (!this.client || !this.client._connected) {
-                this.client = new Client({
-                    user: 'postgres',
-                    host: 'localhost',
-                    database: 'project_2',
-                    password: 'japierdole',
-                    port: 5432,
-                });
+const uri = 'mongodb://localhost:27017/your_database_name';
 
-                await this.client.connect();
-                console.log('ЕСТЬ КОНТАК!!!');
-            }
-        } catch (err) {
-            console.error('Error connecting to PostgresSQL:', err);
-        }
-    }
-    async disconnect() {
-        if (this.client) {
-            await this.client.end();
-        }
-    }
+const options = {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+}
 
-    async getUser(userID) {
-        const query = `select * from users where id = ${userID};`;
+const client = new MongoClient(uri, options);
 
-        const result = await this.client.query(query);
-        return result.rows;
+let db;
+
+async function connectToDatabase() {
+    try {
+        await client.connect();
+        console.log('Connected to MongoDB');
+        db = client.db();
+    } catch (error) {
+        console.error('Error connecting to MongoDB:', error);
     }
 }
+
+function addUser(user) {
+    return db.collection('users').insertOne(user);
+}
+
+function updateUser(userId, updatedUser) {
+    return db.collection('users').updateOne({ _id: ObjectId(userId) }, { $set: updatedUser });
+}
+
+module.exports = { connectToDatabase, addUser, updateUser };

@@ -1,10 +1,10 @@
 const express = require('express');
 const app = express();
 const port = 1337;
-const dir = __dirname+'/frontend/html/';
 const path = require("path");
 
 app.use(express.json());
+app.use(express.static('frontend'));
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, 'frontend'));
