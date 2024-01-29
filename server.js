@@ -13,13 +13,33 @@ app.get(('/'),(req, res) => {
     res.render('index.ejs');
 });
 
+app.get(('/starter'), (res, req) => {
+    res.render('starter.ejs');
+});
+
+app.get(('/login'),(req, res) => {
+    res.render('login.ejs');
+});
+
+app.get(('/register'),(req, res) => {
+    res.render('register.ejs');
+});
+
+app.get(('/forgot'),(req, res) => {
+    res.render('forgot.ejs');
+});
+
 app.get(('/about'), (req, res) => {
     res.render('about.ejs');
 });
 
+app.get(('/feedback'), (req, res) => {
+    res.render('feedback.ejs');
+})
+
 app.get('/account:id', (req, res) => {
     const id = req.params.id;
-    res.render("")
+    res.render("");
 });
 
 app.post('/add/users', (req, res) => {
