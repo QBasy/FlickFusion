@@ -13,6 +13,7 @@ const usersSchema = {
     other_info: "string"
 };
 
+
 const videosSchema = {
     title: "string",
     description: "string",
