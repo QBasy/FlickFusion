@@ -11,6 +11,28 @@
   <script src="https://kit.fontawesome.com/f5c7d6a886.js" crossorigin="anonymous"></script>
   <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css">
   <link href="css/styles.css" rel="stylesheet" type="text/css">
+  <script>
+  async function submitFeedback() {
+    const email = document.getElementByID('inputEmail');
+    const feedback = document.getElementByID('inputFeedback');
+
+    try {
+      const reponse = await fetch('/sendFeedback', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({email, feedback})
+      });
+
+      if (!response.ok) {
+        console.log('Error');
+      }
+    } catch(e) {
+      console.log('Error: ', e);
+    }
+  }
+  </script>
 </head>
 
 <body>

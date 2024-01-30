@@ -38,11 +38,31 @@ function validation(){
     return false;
   }
   else if(cpassword===password){
+    const user = createUser(username, email, password);
     popup.classList.add("open-slide");
     return false;
   }
 }
 
+async function createUser(username, email, password) {
+  try {
+    const response = fetch('/createUser', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({username, password, email})
+    });
+
+    if (!response.ok) {
+      console.log('Error on creating new User');
+    }
+
+    return await response.json();
+  } catch (e) {
+    console.log('Problem with getting response: ', e)
+  }
+}
 let popup = document.getElementById('popup')
 function closeSlide(){
   popup.classList.remove("open-slide")
@@ -69,6 +89,7 @@ function loginValidation(){
     document.getElementById("result").innerHTML="Password should contain at least 6 characters*";
     return false;
   }
+  return login(email, password);
 }
 
 function restoreValidation(){
@@ -84,5 +105,24 @@ function restoreValidation(){
     return false;
   }
 
-  window.location.href = "restorepass.ejs";
+  window.location.href = `/restorepass/${email}`;
+}
+
+async function login(email, password) {
+  try {
+    const response = await fetch('/loginByEmail', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ email, password })
+    });
+    if (!response.ok) {
+      console.log('Error on creating new User');
+    }
+
+    return await response.json();
+  } catch (e) {
+    console.log('Error: ', e);
+  }
 }

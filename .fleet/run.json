@@ -1,0 +1,10 @@
+{
+    "configurations": [
+        {
+            "type": "node",
+            "name": "Node.js configuration",
+            "file": "C:/Users/QoidynBasy/Desktop/WebTech_2/server.js",
+        },
+        
+    ]
+}
