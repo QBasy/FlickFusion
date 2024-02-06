@@ -6,7 +6,8 @@ const mongoose = require('mongoose');
 const nodemailer = require('nodemailer');
 const randomString = require('randomstring');
 const bodyParser = require("body-parser");
-//const {main} = require("database.cjs");
+
+mongoose.connect('mongodb://localhost:27017').then(() => console.log('Connected'));
 
 
 const transporter = nodemailer.createTransport({
@@ -19,12 +20,24 @@ const transporter = nodemailer.createTransport({
     }
 });
 
+const videoSchema = new mongoose.Schema({
+    id: String,
+    title: String,
+    author: String,
+    uploadDate: new Date(),
+    likes: String,
+    comments: String,
+    imagePath: String,
+    videoPath: String,
+});
+
 const userSchema = new mongoose.Schema({
     name: String,
     password: String,
     email: String
 });
 const User = mongoose.model('User', userSchema);
+const Video = mongoose.model('Video', videoSchema);
 
 app.use(bodyParser.json());
 app.use(express.json());
@@ -63,7 +76,7 @@ app.post(('/registerUser'), async (req, res) => {
             other_info: ""
         }
         try {
-            //await database.usersCollection.insertOne(newUser);
+            await User.create({ newUser });
         } catch (e) {
             console.log('Error: ', e);
         } finally {
@@ -80,7 +93,7 @@ app.get(('/forgot'),(req, res) => {
 
 app.get(('/restorepass/:email'), async (req, res) => {
     const { email } = req.body;
-    const restoreCode = randomString.generate({length: 5, charset: 'numeric'});
+    const restoreCode = randomString.generate({ length: 5, charset: 'numeric' });
 
     try {
         const user = await User.findOne({ email });
@@ -99,6 +112,18 @@ app.get(('/restorepass/:email'), async (req, res) => {
         });
 
         res.render('restorepass.ejs', {restoreCode});
+    } catch (e) {
+        console.log('Error: ', e);
+    }
+});
+
+app.put(('/changePassword/'), async (req, res) => {
+    const { email, status } = req.body;
+
+    try {
+        if (!status) {
+            return res.status(404);
+        }
     } catch (e) {
         console.log('Error: ', e);
     }
@@ -153,6 +178,21 @@ app.post(('/loginByEmail'), async (req, res) => {
             return res.json({ success: false });
         }
         res.json({success: true });
+    } catch (e) {
+        console.log('Error ', e);
+    }
+});
+
+app.get(('/video'), async (req, res) => {
+    const { videoId } = req.URL.Query().get('VideoID');
+
+    try {
+        const video = await Video.findOne({ videoId });
+
+        if (video == null) {
+            return res.json( { success: false} );
+        }
+        res.render('/video.ejs', {video});
     } catch (e) {
         console.log('Error ', e);
     }

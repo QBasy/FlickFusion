@@ -1,8 +1,6 @@
 const { MongoClient, ObjectId } = require('mongodb');
-
 const uri = 'mongodb://localhost:27017/';
 const databaseName = 'your_database_name';
-
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 
 const usersSchema = {
@@ -12,7 +10,6 @@ const usersSchema = {
     registration_date: "date",
     other_info: "string"
 };
-
 
 const videosSchema = {
     title: "string",
