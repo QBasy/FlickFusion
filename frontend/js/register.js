@@ -38,27 +38,34 @@ function validation(){
     return false;
   }
   else if(cpassword===password){
-    const user = createUser(username, email, password);
-    popup.classList.add("open-slide");
-    return false;
+    return true;
   }
+}
+
+async function register() {
+  if (!validation()) {
+    console.log("Shit");
+    return;
+  }
+  let username = document.getElementById('Username').value;
+  let email = document.getElementById('Email').value;
+  let password = document.getElementById('Password').value;
+  await createUser(username, email, password);
 }
 
 async function createUser(username, email, password) {
   try {
-    const response = fetch('/createUser', {
+    const response = fetch('/registerUser', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({username, password, email})
+      body: JSON.stringify({ username, password, email })
     });
 
-    if (!response.ok) {
+    if (!(await response).status) {
       console.log('Error on creating new User');
     }
-
-    return await response.json();
   } catch (e) {
     console.log('Problem with getting response: ', e)
   }
@@ -69,16 +76,11 @@ function closeSlide(){
 }
 
 function loginValidation(){
-  let email = document.formFiller.Email.value;
-  let emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  let username = document.formFiller.Username.value;
   let password = document.formFiller.Password.value;
 
-  if(email===""){
-    document.getElementById("result").innerHTML="Enter your email*";
-    return false;
-  }
-  else if(!emailRegex.test(email)){
-    document.getElementById("result").innerHTML="Incorrect email*";
+  if(username===""){
+    document.getElementById("result").innerHTML="Enter your Username*";
     return false;
   }
   else if(password===""){
@@ -89,7 +91,7 @@ function loginValidation(){
     document.getElementById("result").innerHTML="Password should contain at least 6 characters*";
     return false;
   }
-  return login(email, password);
+  return true;
 }
 
 function restoreValidation(){
@@ -108,21 +110,31 @@ function restoreValidation(){
   window.location.href = `/restorepass/${email}`;
 }
 
-async function login(email, password) {
+async function loginFetch(username, password) {
   try {
     const response = await fetch('/loginByEmail', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ email, password })
+      body: JSON.stringify({ username, password })
     });
-    if (!response.ok) {
+    if (!response.status) {
       console.log('Error on creating new User');
     }
-
-    return await response.json();
+    return response.status;
   } catch (e) {
     console.log('Error: ', e);
+    return false;
+  }
+}
+
+async function login() {
+  const username = document.getElementById('Username').value;
+  const password = document.getElementById('Password').value;
+
+  if (loginValidation() && await loginFetch(username, password)) {
+    console.log('Success');
+    window.location.href = '/index';
   }
 }

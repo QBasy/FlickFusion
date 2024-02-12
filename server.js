@@ -1,14 +1,16 @@
 const express = require('express');
+const rateLimit = require("express-rate-limit");
 const app = express();
 const port = 1337;
 const path = require("path");
-const mongoose = require('mongoose');
 const nodemailer = require('nodemailer');
 const randomString = require('randomstring');
 const bodyParser = require("body-parser");
+const UserDB = require("./frontend/db/user");
+const VideoDB = require("./frontend/db/video");
 
-mongoose.connect('mongodb://localhost:27017').then(() => console.log('Connected'));
 
+let changePasswordLinks = [];
 
 const transporter = nodemailer.createTransport({
     host: 'smtp.mail.ru',
@@ -20,25 +22,12 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-const videoSchema = new mongoose.Schema({
-    id: String,
-    title: String,
-    author: String,
-    uploadDate: new Date(),
-    likes: String,
-    comments: String,
-    imagePath: String,
-    videoPath: String,
+const limiter = rateLimit({
+    windowMs: 2 * 60 * 1000,
+    max: 100
 });
 
-const userSchema = new mongoose.Schema({
-    name: String,
-    password: String,
-    email: String
-});
-const User = mongoose.model('User', userSchema);
-const Video = mongoose.model('Video', videoSchema);
-
+app.use(limiter);
 app.use(bodyParser.json());
 app.use(express.json());
 app.use(express.static('frontend'));
@@ -46,14 +35,12 @@ app.use(express.static('frontend'));
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, 'frontend'));
 
-//main().catch(console.error);
-
 app.get(('/'),(req, res) => {
-    res.render('index.ejs');
+    res.render('starter.ejs');
 });
 
-app.get(('/starter'), (req, res) => {
-    res.render('starter.ejs');
+app.get((`/index/:id`), (req, res) => {
+    res.render('index.ejs', { id });
 });
 
 app.get(('/login'),(req, res) => {
@@ -64,23 +51,27 @@ app.get(('/register'),(req, res) => {
     res.render('register.ejs');
 });
 
-app.post(('/registerUser'), async (req, res) => {
+app.get(('/registerUser'), async (req, res) => {
     const { username, password, email } = req.body;
 
     try {
+        console.log('1')
         const newUser = {
             username: username,
-            email: email,
             password: password,
-            registration_date: new Date(),
-            other_info: ""
+            email: email,
         }
         try {
-            await User.create({ newUser });
+            console.log('2')
+            if (await UserDB.isInDB(newUser)) {
+                console.log('FCK!!!');
+                res.status(404).json({ success: false });
+            }
+            await UserDB.createUser(newUser)
+            console.log('3')
+            await res.status(501).json({ success: true });
         } catch (e) {
             console.log('Error: ', e);
-        } finally {
-            res.render('index.ejs', { email });
         }
     } catch(e) {
         console.log('Error: ', e );
@@ -96,7 +87,7 @@ app.get(('/restorepass/:email'), async (req, res) => {
     const restoreCode = randomString.generate({ length: 5, charset: 'numeric' });
 
     try {
-        const user = await User.findOne({ email });
+        const user = await UserDB.getUserById(email);
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
         }
@@ -123,6 +114,14 @@ app.put(('/changePassword/'), async (req, res) => {
     try {
         if (!status) {
             return res.status(404);
+        } else {
+            changePasswordLinks.push({email, })
+            await transporter.sendMail({
+                from: email,
+                to: 'webresponser@mail.ru',
+                subject: 'Feedback',
+                text: link
+            });
         }
     } catch (e) {
         console.log('Error: ', e);
@@ -154,27 +153,13 @@ app.post(('/sendFeedback'), async (req, res) => {
     }
 });
 
-app.post('/createUser', async (req, res) => {
-    try {
-        const { name, password, email } = req.body;
-        const newUser = new User({ name, password, email });
-
-        await newUser.save();
-
-        res.status(201).json(newUser);
-    } catch (e) {
-        console.log('Error: ', e);
-        res.status(500);
-    }
-});
-
-app.post(('/loginByEmail'), async (req, res) => {
-    const { email, password } = req.body;
+app.post(('/loginByUsername'), async (req, res) => {
+    const { username, password } = req.body;
+    console.log('1')
 
     try {
-        const user = await User.findOne({ email });
-
-        if (!user || user.password !== password) {
+        const user = await UserDB.getUserByUsername({ username: username }, req, res);
+        if (await user.checkPassword(username, password)) {
             return res.json({ success: false });
         }
         res.json({success: true });
@@ -187,7 +172,7 @@ app.get(('/video'), async (req, res) => {
     const { videoId } = req.URL.Query().get('VideoID');
 
     try {
-        const video = await Video.findOne({ videoId });
+        const video = await VideoDB.findOne({ videoId });
 
         if (video == null) {
             return res.json( { success: false} );
