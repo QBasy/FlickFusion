@@ -16,7 +16,7 @@ module.exports = {
     userSchema, User,
     createUser: async ({ name, password, email }) => {
         try {
-            if (User.findOne({ username: name }) !== null) {
+            if (!User.findOne({ username: name })) {
                 console.log("Shit");
                 return false;
             }

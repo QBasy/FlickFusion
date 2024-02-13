@@ -39,8 +39,8 @@ app.get(('/'),(req, res) => {
     res.render('starter.ejs');
 });
 
-app.get((`/index/:id`), (req, res) => {
-    res.render('index.ejs', { id });
+app.get(('/index'), (req, res) => {
+    res.render('index.ejs');
 });
 
 app.get(('/login'),(req, res) => {
@@ -51,7 +51,7 @@ app.get(('/register'),(req, res) => {
     res.render('register.ejs');
 });
 
-app.get(('/registerUser'), async (req, res) => {
+app.post(('/registerUser'), async (req, res) => {
     const { username, password, email } = req.body;
 
     try {
