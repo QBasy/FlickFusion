@@ -122,7 +122,7 @@ async function loginFetch(username, password) {
     if (!response.status) {
       console.log('Error on creating new User');
     }
-    return response.status;
+    return response.status === true;
   } catch (e) {
     console.log('Error: ', e);
     return false;
@@ -133,8 +133,10 @@ async function login() {
   const username = document.getElementById('Username').value;
   const password = document.getElementById('Password').value;
 
-  if (loginValidation() && await loginFetch(username, password)) {
+  if (loginValidation() && (await loginFetch(username, password))) {
     console.log('Success');
     window.location.href = '/index';
+  } else {
+    console.log('NO HOMO')
   }
 }
