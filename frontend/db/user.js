@@ -16,16 +16,23 @@ module.exports = {
     userSchema, User,
     createUser: async ({ name, password, email }) => {
         try {
-            if (!User.findOne({ username: name })) {
-                console.log("Shit");
+            const existingUser = await User.findOne({ username: name });
+            if (existingUser) {
+                console.log('User already exists');
                 return false;
             }
-            const hashedPassword = await bcrypt.hash(password, 10)
-            const newUser = new User({ username: name, password: hashedPassword, email: email });
+
+            const hashedPassword = await bcrypt.hash(password, 10);
+
+            const newUser = new User({ username: name, password: hashedPassword, email });
+
             await newUser.save();
+
+            console.log('User created successfully');
             return true;
         } catch (error) {
             console.error('Error creating user:', error);
+            return false;
         }
     },
 

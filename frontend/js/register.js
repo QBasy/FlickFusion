@@ -112,7 +112,7 @@ function restoreValidation(){
 
 async function loginFetch(username, password) {
   try {
-    const response = await fetch('/loginByEmail', {
+    const response = await fetch('/loginByUsername', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

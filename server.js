@@ -55,21 +55,17 @@ app.post(('/registerUser'), async (req, res) => {
     const { username, password, email } = req.body;
 
     try {
-        console.log('1')
         const newUser = {
             username: username,
             password: password,
             email: email,
         }
         try {
-            console.log('2')
             if (await UserDB.isInDB(newUser)) {
-                console.log('FCK!!!');
                 res.status(404).json({ success: false });
             }
             await UserDB.createUser(newUser)
-            console.log('3')
-            await res.status(501).json({ success: true });
+            await res.json({ success: true });
         } catch (e) {
             console.log('Error: ', e);
         }
@@ -155,13 +151,15 @@ app.post(('/sendFeedback'), async (req, res) => {
 
 app.post(('/loginByUsername'), async (req, res) => {
     const { username, password } = req.body;
-    console.log('1')
 
+    console.log('LOL')
     try {
         const user = await UserDB.getUserByUsername({ username: username }, req, res);
         if (await user.checkPassword(username, password)) {
+            console.log('2222')
             return res.json({ success: false });
         }
+        console.log('FCK')
         res.json({success: true });
     } catch (e) {
         console.log('Error ', e);
