@@ -157,10 +157,10 @@ app.post(('/loginByUsername'), async (req, res) => {
         const user = await UserDB.getUserByUsername({ username: username }, req, res);
         if (!await user.checkPassword(username, password)) {
             console.log('2222')
-            res.json({ success: false });
+            res.json({ success: true });
         }
         console.log('FCK')
-        res.json({success: true });
+        res.json({ success: false });
     } catch (e) {
         console.log('Error ', e);
     }
