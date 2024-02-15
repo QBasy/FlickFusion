@@ -149,18 +149,15 @@ app.post(('/sendFeedback'), async (req, res) => {
     }
 });
 
-app.post(('/loginByUsername'), async (req, res) => {
+app.get(('/loginByUsername'), async (req, res) => {
     const { username, password } = req.body;
 
-    console.log('LOL')
     try {
-        const user = await UserDB.getUserByUsername({ username: username }, req, res);
-        if (!await user.checkPassword(username, password)) {
-            console.log('2222')
+        if (await UserDB.checkPassword(username, password)) {
             res.json({ success: true });
+        } else {
+            res.json({ success: false });
         }
-        console.log('FCK')
-        res.json({ success: false });
     } catch (e) {
         console.log('Error ', e);
     }
@@ -170,7 +167,7 @@ app.get(('/video'), async (req, res) => {
     const { videoId } = req.URL.Query().get('VideoID');
 
     try {
-        const video = await VideoDB.findOne({ videoId });
+        const video = await VideoDB.getVideoById({ videoId });
 
         if (video == null) {
             return res.json( { success: false} );

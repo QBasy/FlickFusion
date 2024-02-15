@@ -76,8 +76,8 @@ function closeSlide(){
 }
 
 function loginValidation(){
-  let username = document.formFiller.Username.value;
-  let password = document.formFiller.Password.value;
+  let username = document.getElementById('Username').value;
+  let password = document.getElementById('Password').value;
 
   if(username===""){
     document.getElementById("result").innerHTML="Enter your Username*";
@@ -95,7 +95,7 @@ function loginValidation(){
 }
 
 function restoreValidation(){
-  let email = document.formFiller.Email.value;
+  let email = document.getElementById('Email').value;
   let emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   if(email===""){
@@ -122,7 +122,8 @@ async function loginFetch(username, password) {
     if (!response.status) {
       console.log('Error on creating new User');
     }
-    return response.status === true;
+    console.log(response.status);
+    return response.status;
   } catch (e) {
     console.log('Error: ', e);
     return false;
@@ -133,10 +134,17 @@ async function login() {
   const username = document.getElementById('Username').value;
   const password = document.getElementById('Password').value;
 
-  if (loginValidation() && (await loginFetch(username, password))) {
-    console.log('Success');
-    window.location.href = '/index';
+  if (loginValidation()) {
+    if ((await loginFetch(username, password))) {
+      console.log('Success');
+      window.location.href = '/index';
+    }
+    else {
+      document.getElementById("result").innerHTML="Enter Correct Password!";
+      console.log('FetchError');
+    }
   } else {
-    console.log('NO HOMO')
+    document.getElementById("result").innerHTML="Enter Correct Password or Username!";
+    console.log('NO HOMO');
   }
 }

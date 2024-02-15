@@ -1,11 +1,11 @@
 const mongoose = require("mongoose");
 const bcrypt = require('bcrypt');
 
-mongoose.connect('mongodb://localhost:27017').then(() => console.log('Connected'));
+mongoose.connect('mongodb://localhost:27017/FlickFusion').then(() => console.log('Connected'));
 
 const userSchema = new mongoose.Schema({
     id: String,
-    name: String,
+    username: { type: String, unique: true } ,
     password: String,
     email: String
 });
@@ -14,9 +14,9 @@ const User = mongoose.model('User', userSchema);
 
 module.exports = {
     userSchema, User,
-    createUser: async ({ name, password, email }) => {
+    createUser: async ({ username, password, email }) => {
         try {
-            const existingUser = await User.findOne({ username: name });
+            const existingUser = await User.findOne({ username });
             if (existingUser) {
                 console.log('User already exists');
                 return false;
@@ -24,7 +24,7 @@ module.exports = {
 
             const hashedPassword = await bcrypt.hash(password, 10);
 
-            const newUser = new User({ username: name, password: hashedPassword, email });
+            const newUser = new User({ username, password: hashedPassword, email });
 
             await newUser.save();
 
@@ -38,7 +38,8 @@ module.exports = {
 
     isInDB: async (user) => {
         try {
-            const count = await User.countDocuments({ user: user });
+            let count = await User.countDocuments({ username: user.username });
+            count = count + await User.countDocuments({ email: user.email });
             return count > 0;
         } catch (e) {
             console.error('Error: ', e);
@@ -47,7 +48,6 @@ module.exports = {
 
     getUserByUsername: async ({ username }, req, res) => {
         try {
-            console.log('HEHE')
             const user = await User.findOne({ username: username });
             if (!(User.countDocuments({ username: username }) > 0)) {
                 return false;
@@ -96,14 +96,18 @@ module.exports = {
 
     checkPassword: async (username, password) => {
         try {
-            const user = User.findOne({ username: username });
+            const user = await User.findOne({ username: username });
 
             if (!user) {
                 console.log('User not found');
                 return false;
             }
-            console.log('2')
-            return await bcrypt.compare(password, user.password);
+
+            const userPassword = user.password;
+
+            const result = await bcrypt.compare(password, userPassword);
+            console.log(result);
+            return result
         } catch (e) {
             console.error('Error: ', e);
             return false;
