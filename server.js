@@ -57,7 +57,8 @@ app.post(('/registerUser'), async (req, res) => {
     try {
         try {
             if (await UserDB.isInDB(username, email)) {
-                res.status(404).json({ success: false });
+                await res.json({ success: false });
+                return;
             }
             await UserDB.createUser({
                 username: username,

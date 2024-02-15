@@ -52,7 +52,7 @@ async function register() {
   let password = document.getElementById('Password').value;
   let response = await createUser(username, email, password);
   if (response) {
-    window.location.href = '/user';
+    window.location.href = '/login';
   } else {
     document.getElementById("result").innerHTML = "Username or Email already used";
   }
