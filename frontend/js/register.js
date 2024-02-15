@@ -50,7 +50,12 @@ async function register() {
   let username = document.getElementById('Username').value;
   let email = document.getElementById('Email').value;
   let password = document.getElementById('Password').value;
-  await createUser(username, email, password);
+  let response = await createUser(username, email, password);
+  if (response) {
+    window.location.href = '/user';
+  } else {
+    document.getElementById("result").innerHTML = "Username or Email already used";
+  }
 }
 
 async function createUser(username, email, password) {
@@ -66,6 +71,7 @@ async function createUser(username, email, password) {
     if (!(await response).status) {
       console.log('Error on creating new User');
     }
+    return (await response).status;
   } catch (e) {
     console.log('Problem with getting response: ', e)
   }

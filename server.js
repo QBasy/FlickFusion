@@ -55,16 +55,15 @@ app.post(('/registerUser'), async (req, res) => {
     const { username, password, email } = req.body;
 
     try {
-        const newUser = {
-            username: username,
-            password: password,
-            email: email,
-        }
         try {
-            if (await UserDB.isInDB(newUser)) {
+            if (await UserDB.isInDB(username, email)) {
                 res.status(404).json({ success: false });
             }
-            await UserDB.createUser(newUser)
+            await UserDB.createUser({
+                username: username,
+                password: password,
+                email: email,
+            });
             await res.json({ success: true });
         } catch (e) {
             console.log('Error: ', e);

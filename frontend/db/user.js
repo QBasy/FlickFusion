@@ -36,11 +36,11 @@ module.exports = {
         }
     },
 
-    isInDB: async (user) => {
+    isInDB: async (username, email) => {
         try {
-            let count = await User.countDocuments({ username: user.username });
-            count = count + await User.countDocuments({ email: user.email });
-            return count > 0;
+            let count1 = await User.countDocuments({ username: username });
+            let count2 = await User.countDocuments({ email: email });
+            return count1 > 0 || count2 > 0;
         } catch (e) {
             console.error('Error: ', e);
         }
