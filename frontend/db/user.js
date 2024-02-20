@@ -5,7 +5,7 @@ mongoose.connect('mongodb://localhost:27017/FlickFusion').then(() => console.log
 
 const userSchema = new mongoose.Schema({
     id: String,
-    username: { type: String, unique: true } ,
+    username: { type: String, unique: true },
     password: String,
     email: String
 });
@@ -16,9 +16,14 @@ module.exports = {
     userSchema, User,
     createUser: async ({ username, password, email }) => {
         try {
-            const existingUser = await User.findOne({ username });
+            let existingUser = await User.findOne({ username: username });
             if (existingUser) {
-                console.log('User already exists');
+                console.log('Username already exists');
+                return false;
+            }
+            existingUser = await User.findOne({ email: email });
+            if (existingUser) {
+                console.log('Email already exists');
                 return false;
             }
 
@@ -38,9 +43,10 @@ module.exports = {
 
     isInDB: async (username, email) => {
         try {
-            let count1 = await User.countDocuments({ username: username });
-            let count2 = await User.countDocuments({ email: email });
-            return count1 > 0 || count2 > 0;
+            let count = 0;
+            count += await User.countDocuments({ username: username });
+            count += await User.countDocuments({ email: email });
+            return count > 0;
         } catch (e) {
             console.error('Error: ', e);
         }

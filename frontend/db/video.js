@@ -15,57 +15,54 @@ const videoSchema = new mongoose.Schema({
 
 const Video = mongoose.model('Video', videoSchema);
 
-exports.createUser = async (req, res) => {
+exports.createVideo = async ({ videoName, author, imagePath, videoPath }) => {
     try {
-        const { name, password, email } = req.body;
-        const newUser = new Video({ name, password, email });
-        await newUser.save();
-        res.status(201).json(newUser);
+        const uploadDate = new Date();
+        const newVideo = new Video({ title: videoName, author, uploadDate, likes: 0, comments: 0, imagePath, videoPath });
+        await newVideo.save();
+        return true;
     } catch (error) {
-        console.error('Error creating user:', error);
-        res.status(500).json({ error: 'Internal server error' });
+        console.error('Error creating Video: ', error);
+        return false;
     }
 };
 
-exports.getVideoById = async (req, res) => {
-    const { id } = req.params;
+exports.getVideoById = async ({ id }) => {
     try {
-        const user = await Video.findById(id);
-        if (!user) {
-            return res.status(404).json({ error: 'User not found' });
+        const video = await Video.findById({id});
+        if (!video) {
+            return false;
         }
-        res.json(user);
+        return true;
     } catch (error) {
-        console.error('Error fetching user:', error);
-        res.status(500).json({ error: 'Internal server error' });
+        console.error('Error fetching Video: ', error);
+        return false;
     }
 };
 
-exports.updateVideoById = async (req, res) => {
-    const { id } = req.params;
-    const newData = req.body;
+exports.updateVideoById = async ({id}, parameters) => {
+    const { title, imagePath } = parameters;
     try {
-        const updatedUser = await Video.findByIdAndUpdate(id, newData, { new: true });
-        if (!updatedUser) {
-            return res.status(404).json({ error: 'User not found' });
+        const updatedVideo = await Video.findByIdAndUpdate({ id }, { title: title , imagePath: imagePath });
+        if (!updatedVideo) {
+            return false
         }
-        res.json(updatedUser);
+        return true;
     } catch (error) {
-        console.error('Error updating user:', error);
-        res.status(500).json({ error: 'Internal server error' });
+        console.error('Error updating Video: ', error);
+        return false;
     }
 };
 
-exports.deleteVideoById = async (req, res) => {
-    const { id } = req.params;
+exports.deleteVideoById = async ({ id }) => {
     try {
-        const deletedUser = await Video.findByIdAndDelete(id);
-        if (!deletedUser) {
-            return res.status(404).json({ error: 'User not found' });
+        const deletedVideo = await Video.findByIdAndDelete({ id });
+        if (!deletedVideo) {
+            return false;
         }
-        res.json({ message: 'User deleted successfully' });
+        return true;
     } catch (error) {
-        console.error('Error deleting user:', error);
-        res.status(500).json({ error: 'Internal server error' });
+        console.error('Error deleting Video: ', error);
+        return false;
     }
 };

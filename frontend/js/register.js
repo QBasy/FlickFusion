@@ -68,10 +68,11 @@ async function createUser(username, email, password) {
       body: JSON.stringify({ username, password, email })
     });
 
-    if (!(await response).status) {
+    if (!(await response).ok) {
       console.log('Error on creating new User');
+      return false;
     }
-    return (await response).status;
+    return true;
   } catch (e) {
     console.log('Problem with getting response: ', e)
   }

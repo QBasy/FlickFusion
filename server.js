@@ -9,8 +9,12 @@ const bodyParser = require("body-parser");
 const UserDB = require("./frontend/db/user");
 const VideoDB = require("./frontend/db/video");
 
-
 let changePasswordLinks = [];
+
+const sslOptions = {
+    key: fs.readFileSync('path/to/private/key.pem'),
+    cert: fs.readFileSync('path/to/certificate.pem')
+};
 
 const transporter = nodemailer.createTransport({
     host: 'smtp.mail.ru',
