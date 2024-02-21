@@ -8,6 +8,7 @@ const randomString = require('randomstring');
 const bodyParser = require("body-parser");
 const UserDB = require("./frontend/db/user");
 const VideoDB = require("./frontend/db/video");
+const CommentDB = require("./frontend/db/comment");
 
 let changePasswordLinks = [];
 
@@ -190,6 +191,21 @@ app.post(('/search'), async (req,res) => {
         res.json(videos);
     } catch (e) {
         console.log('Error ', e);
+    }
+});
+
+app.post(('/comment'), async (req, res) => {
+    const { text, username, video } = req.body;
+    try {
+        let success = await CommentDB.createComment({ video, username, text });
+        if (success) {
+            res.json({ success: true });
+        } else {
+            res.json({ success: false });
+        }
+    } catch (e) {
+        console.log('Error ', e);
+        res.json({ success: false});
     }
 });
 
