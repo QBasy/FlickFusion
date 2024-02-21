@@ -11,11 +11,6 @@ const VideoDB = require("./frontend/db/video");
 
 let changePasswordLinks = [];
 
-const sslOptions = {
-    key: fs.readFileSync('path/to/private/key.pem'),
-    cert: fs.readFileSync('path/to/certificate.pem')
-};
-
 const transporter = nodemailer.createTransport({
     host: 'smtp.mail.ru',
     port: 465,
@@ -179,6 +174,50 @@ app.get(('/video'), async (req, res) => {
         res.render('/video.ejs', {video});
     } catch (e) {
         console.log('Error ', e);
+    }
+});
+
+app.post(('/search'), async (req,res) => {
+    const { title } = req.query;
+    try {
+        let videos = [];
+        const videoFound = await VideoDB.getAllVideos();
+        for (const video in videoFound) {
+            if (video.title.includes(title)) {
+                videos.push(video);
+            }
+        }
+        res.json(videos);
+    } catch (e) {
+        console.log('Error ', e);
+    }
+});
+
+app.post(('/addVideo'), async (req, res) => {
+    const { title, author, imagePath, videoPath } = req.body;
+    try {
+        let success = await VideoDB.createVideo({ title, author, imagePath, videoPath });
+        if (success) {
+            res.json({ success: true });
+        } else {
+            res.json({ success: false });
+        }
+    } catch (e) {
+        console.log('Error ', e);
+        res.json({ success: false});
+    }
+});
+
+app.post(('/comment'), async (req, res) => {
+
+});
+
+app.post(('/deleteComment'), async (req, res) => {
+    const { author , video, text } = req.body;
+    try {
+        const newComment = text;
+    } catch (e) {
+        console.log('Error ', e)
     }
 });
 

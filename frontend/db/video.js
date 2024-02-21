@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-
+const path = __dirname + '/frontend/video/';
 mongoose.connect('mongodb://localhost:27017/FlickFusion').then(() => console.log('Connected'));
 
 const videoSchema = new mongoose.Schema({
@@ -15,10 +15,10 @@ const videoSchema = new mongoose.Schema({
 
 const Video = mongoose.model('Video', videoSchema);
 
-exports.createVideo = async ({ videoName, author, imagePath, videoPath }) => {
+exports.createVideo = async ({ title, author, imagePath, videoPath }) => {
     try {
-        const uploadDate = new Date();
-        const newVideo = new Video({ title: videoName, author, uploadDate, likes: 0, comments: 0, imagePath, videoPath });
+        const uploadDate = new Date().toDateString();
+        const newVideo = new Video({ title, author, uploadDate, likes: 0, comments: 0, imagePath, videoPath });
         await newVideo.save();
         return true;
     } catch (error) {
@@ -37,6 +37,21 @@ exports.getVideoById = async ({ id }) => {
     } catch (error) {
         console.error('Error fetching Video: ', error);
         return false;
+    }
+};
+
+exports.getAllVideos = async () => {
+    try {
+        Video.find({}, function (err, videos) {
+            let VideoMap = {};
+
+            videos.forEach(function (video) {
+                VideoMap[video._id] = video;
+            });
+            return VideoMap;
+        });
+    } catch (e) {
+        console.error('Error updating Video: ', e);
     }
 };
 
