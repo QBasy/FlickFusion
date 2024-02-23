@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: FlickFusion-deployment
+  labels:
+    app: FlickFusion
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: FlickFusion
+  template:
+    metadata:
+      labels:
+        app: FlickFusion
+    spec:
+      containers:
+        - name: FlickFusion-container
+          image: flick-fusion
+          ports:
+            - containerPort: 8080
