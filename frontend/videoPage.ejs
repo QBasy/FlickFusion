@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>FlickFusion</title>
+  <link rel="icon" type="image/x-icon" href="img/favicon-32x32.png">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://kit.fontawesome.com/f5c7d6a886.js" crossorigin="anonymous"></script>
+  <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
+  <link href="css/style.css" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-light shadow">
+  <div class="container px-4 px-lg-5"><a class="navbar-brand" href="/" id="name">FlickFusion</a><button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+    <div
+      class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
+        <li class="nav-item"><a class="nav-link active" aria-current="page" href="/">Home</a></li>
+        <li class="nav-item dropdown"><a class="nav-link dropdown-toggle" id="navbarDropdownWatch" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Watch</a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdownWatch">
+            <li><a class="dropdown-item" href="#">Movies</a></li>
+            <li><a class="dropdown-item" href="#">Series</a></li>
+            <li>
+              <hr class="dropdown-divider">
+            </li>
+            <li><a class="dropdown-item" href="#">Videos</a></li>
+            <li><a class="dropdown-item" href="#">Memes</a></li>
+          </ul>
+        </li>
+        <li class="nav-item"><a class="nav-link" href="/feedback">Feedback</a></li>
+      </ul>
+
+      <div class="dropdown">
+        <form class="d-flex">
+          <button class="btn btn-outline-dark" type="button" id="accountDropdownBtn">
+            <i class="fa-solid fa-user"></i> Account
+          </button>
+        </form>
+        <ul class="dropdown-menu" id="accountDropdownMenu">
+          <li><a class="dropdown-item" href="#">My Content</a></li>
+          <li><a class="dropdown-item" href="#">Add Content</a></li>
+          <li><a class="dropdown-item" href="#">Liked</a></li>
+          <li><a class="dropdown-item" href="#">Bookmarks</a></li>
+          <li><a class="dropdown-item" href="#">Edit Profile</a></li>
+          <li><hr class="dropdown-divider"></li>
+          <li><a class="dropdown-item" href="#">Log Out</a></li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</nav>
+
+<!-- Video Section -->
+<!-- hz kak v db delat' -->
+<section class="container-fluid pt-4 pb-5 px-0">
+  <div class="mt-2 px-0 d-flex justify-content-center">
+    <div class="videoContent pe-1">
+      <video
+        id="videoPlaceholder"
+        class="video-js vjs-16-9"
+        controls
+        preload="auto"
+        width="854"
+        height="480"
+        poster="preview/Atomic%20Heart%20Komarovo.png"
+        data-setup='{}'
+      >
+        <source src="mp4/Atomic%20Heart%20Komarovo.mp4" type="video/mp4" />
+        <p class="vjs-no-js">
+          To view this video please enable JavaScript, and consider upgrading to a
+          web browser that
+          <a href="https://videojs.com/html5-video-support/" target="_blank"
+          >supports HTML5 video</a
+          >
+        </p>
+      </video>
+
+      <div class="container pt-2 px-1">
+        <div class="row statsRow pb-3 shadow bg-white rounded">
+          <!-- Title and Views attached to the left side -->
+          <div class="col-auto pt-1 px-2">
+            <div class="vjs-title-bar-title" id="videoTitle">Your Video Title</div>
+            <div class="totalViews" id="views">1000 views</div>
+            <div class="uploadDate" id="uploadDate">uploaded on 21.02.24</div>
+          </div>
+
+          <!-- Author-related content attached to the right side -->
+          <div class="col-auto ms-sm-auto pt-1">
+            <div class="row">
+              <div class="col btn authorBtn p-1" id="authorBtn">
+                <div class="row align-items-center">
+                  <div class="col-auto avatar px-0" id="avatar">
+                    <img src="img/toji.png" alt="avatar" id="videoAvatar">
+                  </div>
+                  <div class="col authorStats px-0">
+                    <div class="row">
+                      <div class="col-auto">
+                        <div class="authorName" id="authorName">Storm</div>
+                        <div class="subCount" id="subCount">3 subscribers</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-auto btn px-1 mx-2 likeButton d-flex align-items-center" id="likeButton">
+                <i class="fa-regular fa-thumbs-up fa-lg px-1"></i>  <!-- <i class="fa-solid fa-thumbs-up"></i>  for like being clicked-->
+                <p id="likeCount" class="mb-0">-1000</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
+    </div>
+  </div>
+
+  <!-- Next Videos Row -->
+  <div class="container px-4 px-lg-5 mt-5">
+    <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center" id="videoRow">
+
+    </div>
+  </div>
+
+  <!-- hz nuzhno budet ili net
+  <div class="row mx-md-4 px-md-4 pt-3 d-flex justify-content-center">
+    <div class="col-10 col-sm-6 pe-1 col-md-3 px-1 card mb-4">
+      <img src="https://dummyimage.com/450x300/dee2e6/6c757d.jpg" class="card-img-top" alt="Thumbnail">
+      <div class="card-body pb-2 px-2">
+        <div class="d-flex align-items-center mb-3">
+          <img src="img/toji.png" class="rounded-circle me-2" alt="Author Avatar" style="width: 40px; height: 40px;">
+          <div>
+            <h5 class="card-title h6 mb-0">Atomic Heart Walkthrough #1</h5>
+            <p class="card-text h6 text-muted"><small>Storm</small></p>
+          </div>
+        </div>
+        <p class="card-text cardViews">1 129 views</p>
+      </div>
+    </div>
+    <div class="col-10 col-sm-6 pe-1 col-md-3 px-1 card mb-4">
+      <img src="https://dummyimage.com/450x300/dee2e6/6c757d.jpg" class="card-img-top" alt="Thumbnail">
+      <div class="card-body pb-2 px-2">
+        <div class="d-flex align-items-center mb-3">
+          <img src="img/toji.png" class="rounded-circle me-2" alt="Author Avatar" style="width: 40px; height: 40px;">
+          <div>
+              <h5 class="card-title h6 mb-0">CS2 Premier Gaming 20K</h5>
+            <p class="card-text h6 text-muted"><small>Storm</small></p>
+          </div>
+        </div>
+        <p class="card-text cardViews">23 561 views</p>
+      </div>
+    </div>
+    <div class="col-10 col-sm-6 pe-1 col-md-3 px-1 card mb-4">
+      <img src="https://dummyimage.com/450x300/dee2e6/6c757d.jpg" class="card-img-top" alt="Thumbnail">
+      <div class="card-body pb-2 px-2">
+        <div class="d-flex align-items-center mb-3">
+          <img src="img/toji.png" class="rounded-circle me-2" alt="Author Avatar" style="width: 40px; height: 40px;">
+          <div>
+            <h5 class="card-title h6 mb-0">RDR2 Chapter 2 | New Friend!</h5>
+            <p class="card-text h6 text-muted"><small>Storm</small></p>
+          </div>
+        </div>
+        <p class="card-text cardViews">15 579 views</p>
+      </div>
+    </div>
+    <div class="col-10 col-sm-6 pe-1 col-md-3 px-1 card mb-4">
+      <img src="https://dummyimage.com/450x300/dee2e6/x`6c757d.jpg" class="card-img-top" alt="Thumbnail">
+      <div class="card-body pb-2 px-2">
+        <div class="d-flex align-items-center mb-3">
+          <img src="img/toji.png" class="rounded-circle me-2" alt="Author Avatar" style="width: 40px; height: 40px;">
+          <div>
+            <h5 class="card-title h6 mb-0">Satisfactory | Level 4 | New Logistics System</h5>
+            <p class="card-text h6 text-muted"><small>Storm</small></p>
+          </div>
+        </div>
+        <p class="card-text cardViews">2 129 views</p>
+      </div>
+    </div>
+  </div> -->
+
+  <!-- Comment Section Row -->
+  <div class="row justify-content-center">
+    <div class="col-lg-6 col-md-12">
+      <div class="mb-3">
+        <label for="commentInput" class="form-label"></label>
+        <textarea class="form-control no-resize" id="commentInput" rows="4" placeholder="Enter your comment here"></textarea>
+        <div class="mt-3">
+          <button class="btn btn-primary mx-2" id="commentSend">Comment</button>
+          <button class="btn btn-secondary mx-2" id="commentClear">Clear</button>
+        </div>
+      </div>
+      <div class="col" id="commentsContainer"></div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer-->
+<footer class="py-5 bg-dark">
+  <div class="container">
+    <p class="m-0 text-center text-white">Copyright &copy; FlickFusion 2023</p>
+  </div>
+</footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/scripts.js"></script>
+<script src="js/commentFunc.js"></script>
+<script src="js/cardRemaster.js"></script>
+</body>
+
+</html>

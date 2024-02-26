@@ -13,5 +13,7 @@
     <orderEntry type="library" name="react" level="application" />
     <orderEntry type="library" name="f5c7d6a886" level="application" />
     <orderEntry type="library" name="bootstrap" level="application" />
+    <orderEntry type="library" name="video-js" level="application" />
+    <orderEntry type="library" name="video" level="application" />
   </component>
 </module>

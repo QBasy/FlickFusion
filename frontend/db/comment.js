@@ -46,6 +46,7 @@ module.exports = {
     deleteComment: async ({ video, username, date }) => {
         try {
             const result = await Comment.deleteOne({ video: video, username: username, date: date })
+            return !(!result);
         } catch (e) {
             console.log('Error ', e);
             return false;

@@ -225,16 +225,44 @@ app.post(('/addVideo'), async (req, res) => {
 });
 
 app.post(('/comment'), async (req, res) => {
-
+    const { author , video, text } = req.body;
+    try {
+        const success = await CommentDB.createComment({video, username: author, text });
+        if (success) {
+            res.json({ success: true });
+        } else {
+            res.json({ success: false });
+        }
+    } catch (e) {
+        console.log('Error ', e)
+        res.json({ success: false });
+    }
 });
 
 app.post(('/deleteComment'), async (req, res) => {
     const { author , video, text } = req.body;
     try {
-        const newComment = text;
+        const success = await CommentDB.deleteComment({video, username: author, text });
+        if (success) {
+            res.json({ success: true });
+        } else {
+            res.json({ success: false });
+        }
     } catch (e) {
         console.log('Error ', e)
+        res.json({ success: false });
     }
+});
+
+app.get(('/video/:id'), (req,res) => {
+    const id = req.params.id;
+    const video = VideoDB.getVideoById({ id });
+
+    if (video === false) {
+        res.render('404.ejs');
+    }
+
+    res.render('videoPage.ejs', video);
 });
 
 app.listen(port, () => {
