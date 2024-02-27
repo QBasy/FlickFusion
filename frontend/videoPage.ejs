@@ -14,8 +14,9 @@
   <script>
     let concreteVideo = '<%= video %>';
     document.addEventListener('DOMContentLoaded', async function () {
+      console.log('<%= video %>')
       const views = concreteVideo.views++;
-      await fetch('/views++', {
+      await fetch('/addViews', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -86,10 +87,10 @@
         preload="auto"
         width="854"
         height="480"
-        poster="preview/Atomic%20Heart%20Komarovo.png"
+        poster="imagePath<%=video.imagePath%>>"
         data-setup='{}'
       >
-        <source src="mp4/Atomic%20Heart%20Komarovo.mp4" type="video/mp4" />
+        <source src="videoPath<%=video.videoPath%>" type="video/mp4" />
         <p class="vjs-no-js">
           To view this video please enable JavaScript, and consider upgrading to a
           web browser that
@@ -105,7 +106,7 @@
           <div class="col-auto pt-1 px-2">
             <div class="vjs-title-bar-title" id="videoTitle"><%= video.title %></div>
             <div class="totalViews" id="views"><%= video.views %></div>
-            <div class="uploadDate" id="uploadDate">uploaded on <%= video.uploadDate %>></div>
+            <div class="uploadDate" id="uploadDate">uploaded on <%= video.uploadDate %></div>
           </div>
 
           <!-- Author-related content attached to the right side -->
@@ -114,14 +115,14 @@
               <div class="col btn authorBtn p-1" id="authorBtn">
                 <div class="row align-items-center">
                   <div class="col-auto avatar px-0" id="avatar">
-                    <img src="img/toji.png" alt="avatar" id="videoAvatar">
+                    <img src="img/icon.png" alt="avatar" id="videoAvatar">
                   </div>
 
                   <div class="col authorStats px-0">
                     <div class="row">
                       <div class="col-auto">
-                        <div class="authorName" id="authorName">Storm</div>
-                        <div class="subCount" id="subCount">3 subscribers</div>
+                        <div class="authorName" id="authorName"><%= author.username %></div>
+                        <div class="subCount" id="subCount"><%= author.subCount %></div>
                       </div>
                     </div>
                   </div>
@@ -130,7 +131,7 @@
 
               <div class="col-auto btn px-1 mx-2 likeButton d-flex align-items-center" id="likeButton">
                 <i class="fa-regular fa-thumbs-up fa-lg px-1"></i>  <!-- <i class="fa-solid fa-thumbs-up"></i>  for like being clicked-->
-                <p id="likeCount" class="mb-0">-1000</p>
+                <p id="likeCount" class="mb-0"><%= video.likes %></p>
               </div>
             </div>
           </div>

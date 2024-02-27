@@ -1,11 +1,14 @@
 const mongoose = require("mongoose");
 const bcrypt = require('bcryptjs');
+const {Int32} = require("mongodb");
 
 
 const userSchema = new mongoose.Schema({
     id: String,
     username: { type: String, unique: true },
     password: String,
+    subCount: String,
+    avatar: String,
     email: String
 });
 
@@ -28,7 +31,7 @@ module.exports = {
 
             const hashedPassword = await bcrypt.hash(password, 10);
 
-            const newUser = new User({ username, password: hashedPassword, email });
+            const newUser = new User({ username, password: hashedPassword, subCount: 0, avatar: "default.png", email });
 
             await newUser.save();
 
@@ -51,16 +54,18 @@ module.exports = {
         }
     },
 
-    getUserByUsername: async ({ username }, req, res) => {
+    getUserByUsername: async ({ username })  => {
         try {
             const user = await User.findOne({ username: username });
-            if (!(User.countDocuments({ username: username }) > 0)) {
-                return false;
+            if (user === null) {
+                console.log('LOOOL')
+                return null;
             }
-            res.json(user);
+            console.log(user);
+            return user;
         } catch (e) {
             console.error('Error: ', e);
-            res.status(500).json({error: 'Internal server error'});
+            return null;
         }
     },
     getAllUsers: async (req, res) => {
@@ -117,7 +122,7 @@ module.exports = {
 
             const result = await bcrypt.compare(password, userPassword);
             console.log(result);
-            return result
+            return result === true;
         } catch (e) {
             console.error('Error: ', e);
             return false;

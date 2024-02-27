@@ -28,16 +28,16 @@ exports.createVideo = async ({ title, author, imagePath, videoPath }) => {
     }
 };
 
-exports.getVideoById = async ({ id }) => {
+exports.getVideoByTitle = async ({ title }) => {
     try {
-        const video = await Video.findById({ id });
+        const video = await Video.findOne({ title });
         if (!video) {
-            return false;
+            return null;
         }
         return video;
     } catch (error) {
         console.error('Error fetching Video: ', error);
-        return false;
+        return null;
     }
 };
 

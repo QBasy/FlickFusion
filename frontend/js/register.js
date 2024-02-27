@@ -129,8 +129,8 @@ async function loginFetch(username, password) {
     if (!response.status) {
       console.log('Error on creating new User');
     }
-    console.log(response.status);
-    return response.status === true;
+    console.log(response);
+    return response.ok;
   } catch (e) {
     console.log('Error: ', e);
     return false;

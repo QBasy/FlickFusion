@@ -21,7 +21,6 @@ router.use(session({
 async function run() {
     try {
         await mongoose.connect(uri, clientOptions);
-        console.log("Pinged your deployment. You successfully connected to MongoDB!");
     } catch (e) {
         console.log('Error: ', e)
     }
@@ -175,7 +174,6 @@ router.post('/loginByUsername', async (req, res) => {
         if (await UserDB.checkPassword(username, password)) {
             await mongoose.disconnect();
             res.json({ success: true });
-            //res.redirect('/profile');
         } else {
             await mongoose.disconnect();
             res.json({ success: false });
@@ -191,7 +189,7 @@ router.get('/profile', async (req, res) => {
     res.render('profile.ejs', { user });
 });
 
-router.get(('/views++'), (req, res) => {
+router.get(('/addViews'), (req, res) => {
     const views = req.body.views;
     const videoID = req.body.concreteVideo.id;
     try {
@@ -201,20 +199,22 @@ router.get(('/views++'), (req, res) => {
     }
 });
 
-router.get('/video/:id', async (req, res) => {
+router.get('/video/:title', async (req, res) => {
     const user = req.session.user;
-    const { videoId } = req.params.id;
+    const { title } = req.params;
 
     try {
         await run().catch(console.dir);
-        const video = await VideoDB.getVideoById({ videoId });
+        const video = await VideoDB.getVideoByTitle({ title });
 
         if (!video) {
             await mongoose.disconnect();
             return res.json({ success: false });
         }
+        const username = video.author;
+        const author = await UserDB.getUserByUsername({ username })
         await mongoose.disconnect();
-        res.render('videoPage.ejs', { video, user });
+        res.render('videoPage.ejs', { video, author });
     } catch (e) {
         await mongoose.disconnect();
         console.log('Error: ', e);
@@ -262,7 +262,6 @@ router.post('/comment', async (req, res) => {
 });
 
 router.post('/addVideo', async (req, res) => {
-    const user = req.session.user;
     const { title, author, imagePath, videoPath } = req.body;
     try {
         await run().catch(console.dir);
