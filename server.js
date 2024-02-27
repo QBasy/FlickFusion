@@ -11,7 +11,7 @@ const VideoDB = require("./frontend/db/video");
 const CommentDB = require("./frontend/db/comment");
 const mongoose = require("mongoose");
 const bcrypt = require('bcrypt');
-const uri = "mongodb+srv://userServer:<flickfusion>@webtech.w7gfa5d.mongodb.net/?retryWrites=true&w=majority&appName=WebTech";
+const uri = "mongodb+srv://userServer:flickfusion@webtech.w7gfa5d.mongodb.net/?retryWrites=true&w=majority&appName=WebTech";
 const clientOptions = { serverApi: { version: '1', strict: true, deprecationErrors: true } };
 async function run() {
     try {
