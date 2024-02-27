@@ -29,9 +29,12 @@ function showPage(pageNumber) {
     const pageCards = jsonData.slice(start, end);
 
     const section = document.getElementById('videoRow');
-    section.innerHTML = '';
+    section.innerHTML = ' ';
     pageCards.forEach(cardData => {
         const card = createCard(cardData.title, cardData.author, cardData.avatarUrl, cardData.cardViews, cardData.imageURL);
+        if (cardData.href !== undefined) {
+            section.addEventListener('click', () => ( window.location.href = cardData.href ));
+        }
         section.appendChild(card);
     });
 
@@ -108,11 +111,12 @@ function createCard(title, author, avatarUrl, cardViews, imageURL) {
 // json for testing
 const jsonData = [
     {
-        "title": "Jujutsu Kaisen S1EP2",
-        "author": "megaTerminator228",
-        "avatarUrl": "https://dummyimage.com/450x300/dee2e6/6c757d.jpg",
+        "title": "BAUBEKPIDOR",
+        "author": "1337Dumanchik",
+        "avatarUrl": "/img/1337Dumanchik.jpg",
         "cardViews": "2 weeks ago",
-        "imageURL": "https://dummyimage.com/450x300/dee2e6/6c757d.jpg"
+        "imageURL": "video/imagePath/cs2_gameplay.png",
+        "href": "/video/BAUBEKPIDOR"
     },
     {
         "title": "Interstellar",

@@ -58,10 +58,8 @@ module.exports = {
         try {
             const user = await User.findOne({ username: username });
             if (user === null) {
-                console.log('LOOOL')
                 return null;
             }
-            console.log(user);
             return user;
         } catch (e) {
             console.error('Error: ', e);
