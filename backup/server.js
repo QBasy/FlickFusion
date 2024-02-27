@@ -1,13 +1,17 @@
 const express = require('express');
-const router = express.Router();
+const rateLimit = require("express-rate-limit");
+const app = express();
+const port = 1337;
 const path = require("path");
+const nodemailer = require('nodemailer');
+const randomString = require('randomstring');
+const bodyParser = require("body-parser");
 const UserDB = require("./frontend/db/user");
 const VideoDB = require("./frontend/db/video");
 const CommentDB = require("./frontend/db/comment");
-const randomString = require('randomstring');
-const nodemailer = require('nodemailer');
 const mongoose = require("mongoose");
-
+const uri = "mongodb+srv://userServer:flickfusion@webtech.w7gfa5d.mongodb.net/?retryWrites=true&w=majority&appName=WebTech";
+const clientOptions = { serverApi: { version: '1', strict: true, deprecationErrors: true } };
 async function run() {
     try {
         await mongoose.connect(uri, clientOptions);
@@ -16,6 +20,8 @@ async function run() {
         console.log('Error: ', e)
     }
 }
+
+let changePasswordLinks = [];
 
 const transporter = nodemailer.createTransport({
     host: 'smtp.mail.ru',
@@ -27,23 +33,36 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-router.get('/', (req, res) => {
+const limiter = rateLimit({
+    windowMs: 2 * 60 * 1000,
+    max: 100
+});
+
+app.use(limiter);
+app.use(bodyParser.json());
+app.use(express.json());
+app.use(express.static('frontend'));
+
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, 'frontend'));
+
+app.get(('/'),(req, res) => {
     res.render('starter.ejs');
 });
 
-router.get('/index', (req, res) => {
+app.get(('/index'), (req, res) => {
     res.render('index.ejs');
 });
 
-router.get('/login', (req, res) => {
+app.get(('/login'),(req, res) => {
     res.render('login.ejs');
 });
 
-router.get('/register', (req, res) => {
+app.get(('/register'),(req, res) => {
     res.render('register.ejs');
 });
 
-router.post('/registerUser', async (req, res) => {
+app.post(('/registerUser'), async (req, res) => {
     const { username, password, email } = req.body;
 
     try {
@@ -70,12 +89,12 @@ router.post('/registerUser', async (req, res) => {
     }
 });
 
-router.get('/forgot', (req, res) => {
+app.get(('/forgot'),(req, res) => {
     res.render('forgot.ejs');
 });
 
-router.get('/restorepass/:email', async (req, res) => {
-    const { email } = req.params;
+app.get(('/restorepass/:email'), async (req, res) => {
+    const { email } = req.body;
     const restoreCode = randomString.generate({ length: 5, charset: 'numeric' });
 
     try {
@@ -102,7 +121,7 @@ router.get('/restorepass/:email', async (req, res) => {
     }
 });
 
-router.put('/changePassword', async (req, res) => {
+app.put(('/changePassword/'), async (req, res) => {
     const { email, status } = req.body;
 
     try {
@@ -125,15 +144,15 @@ router.put('/changePassword', async (req, res) => {
     }
 });
 
-router.get('/about', (req, res) => {
+app.get(('/about'), (req, res) => {
     res.render('about.ejs');
 });
 
-router.get('/feedback', (req, res) => {
+app.get(('/feedback'), (req, res) => {
     res.render('feedback.ejs');
 });
 
-router.post('/sendFeedback', async (req, res) => {
+app.post(('/sendFeedback'), async (req, res) => {
     const { email, feedback } = req.body;
 
     try {
@@ -150,7 +169,7 @@ router.post('/sendFeedback', async (req, res) => {
     }
 });
 
-router.get('/loginByUsername', async (req, res) => {
+app.get(('/loginByUsername'), async (req, res) => {
     const { username, password } = req.body;
 
     try {
@@ -164,30 +183,30 @@ router.get('/loginByUsername', async (req, res) => {
         }
     } catch (e) {
         await mongoose.disconnect();
-        console.log('Error: ', e);
+        console.log('Error ', e);
     }
 });
 
-router.get('/video', async (req, res) => {
-    const { videoId } = req.query;
+app.get(('/video'), async (req, res) => {
+    const { videoId } = req.URL.Query().get('VideoID');
 
     try {
         await run().catch(console.dir);
         const video = await VideoDB.getVideoById({ videoId });
 
-        if (!video) {
+        if (video == null) {
             await mongoose.disconnect();
-            return res.json({ success: false });
+            return res.json( { success: false} );
         }
         await mongoose.disconnect();
-        res.render('video.ejs', {video});
+        res.render('/video.ejs', {video});
     } catch (e) {
         await mongoose.disconnect();
-        console.log('Error: ', e);
+        console.log('Error ', e);
     }
 });
 
-router.post('/search', async (req,res) => {
+app.post(('/search'), async (req,res) => {
     const { title } = req.query;
     try {
         await run().catch(console.dir);
@@ -202,11 +221,11 @@ router.post('/search', async (req,res) => {
         res.json(videos);
     } catch (e) {
         await mongoose.disconnect();
-        console.log('Error: ', e);
+        console.log('Error ', e);
     }
 });
 
-router.post('/comment', async (req, res) => {
+app.post(('/comment'), async (req, res) => {
     const { text, username, video } = req.body;
     try {
         await run().catch(console.dir);
@@ -220,12 +239,12 @@ router.post('/comment', async (req, res) => {
         }
     } catch (e) {
         await mongoose.disconnect();
-        console.log('Error: ', e);
-        res.json({ success: false });
+        console.log('Error ', e);
+        res.json({ success: false});
     }
 });
 
-router.post('/addVideo', async (req, res) => {
+app.post(('/addVideo'), async (req, res) => {
     const { title, author, imagePath, videoPath } = req.body;
     try {
         await run().catch(console.dir);
@@ -238,12 +257,12 @@ router.post('/addVideo', async (req, res) => {
             res.json({ success: false });
         }
     } catch (e) {
-        console.log('Error: ', e);
-        res.json({ success: false });
+        console.log('Error ', e);
+        res.json({ success: false});
     }
 });
 
-router.post('/comment', async (req, res) => {
+app.post(('/comment'), async (req, res) => {
     const { author , video, text } = req.body;
     try {
         await run().catch(console.dir);
@@ -257,12 +276,12 @@ router.post('/comment', async (req, res) => {
         }
     } catch (e) {
         await mongoose.disconnect();
-        console.log('Error: ', e)
+        console.log('Error ', e)
         res.json({ success: false });
     }
 });
 
-router.post('/deleteComment', async (req, res) => {
+app.post(('/deleteComment'), async (req, res) => {
     const { author , video, text } = req.body;
     try {
         await run().catch(console.dir);
@@ -276,18 +295,18 @@ router.post('/deleteComment', async (req, res) => {
         }
     } catch (e) {
         await mongoose.disconnect();
-        console.log('Error: ', e)
+        console.log('Error ', e)
         res.json({ success: false });
     }
 });
 
-router.get('/video/:id', async (req,res) => {
+app.get(('/video/:id'), async (req,res) => {
     const id = req.params.id;
     try {
         await run().catch(console.dir);
         const video = VideoDB.getVideoById({id});
 
-        if (!video) {
+        if (video === false) {
             res.render('404.ejs');
         }
         await mongoose.disconnect();
@@ -298,4 +317,6 @@ router.get('/video/:id', async (req,res) => {
     }
 });
 
-module.exports = router;
+app.listen(process.env.PORT || port, () => {
+    console.log(`app is working on port -> ${port}`);
+});
