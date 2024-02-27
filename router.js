@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const session = require('express-session');
 const UserDB = require("./frontend/db/user");
 const VideoDB = require("./frontend/db/video");
 const CommentDB = require("./frontend/db/comment");
@@ -10,6 +11,12 @@ const uri = "mongodb+srv://userServer:flickfusion@webtech.w7gfa5d.mongodb.net/?r
 const clientOptions = { serverApi: { version: '1', strict: true, deprecationErrors: true } };
 
 let changePasswordLinks = [];
+
+router.use(session({
+    secret: 'your_secret_key',
+    resave: false,
+    saveUninitialized: false
+}));
 
 async function run() {
     try {
@@ -35,7 +42,8 @@ router.get('/', (req, res) => {
 });
 
 router.get('/index', (req, res) => {
-    res.render('index.ejs');
+    const user = req.session.user;
+    res.render('index.ejs', { user });
 });
 
 router.get('/login', (req, res) => {
@@ -158,10 +166,15 @@ router.get('/loginByUsername', async (req, res) => {
     const { username, password } = req.body;
 
     try {
+        const userData = {
+            username: req.body.username,
+            password: req.body.password
+        };
         await run().catch(console.dir);
         if (await UserDB.checkPassword(username, password)) {
             await mongoose.disconnect();
-            res.json({ success: true });
+            req.session.user = userData;
+            res.redirect('/profile');
         } else {
             await mongoose.disconnect();
             res.json({ success: false });
@@ -172,7 +185,13 @@ router.get('/loginByUsername', async (req, res) => {
     }
 });
 
+router.get('/profile', async (req, res) => {
+    const user = req.session.user;
+    res.render('profile.ejs', { user });
+});
+
 router.get('/video/:id', async (req, res) => {
+    const user = req.session.user;
     const { videoId } = req.params.id;
 
     try {
@@ -184,7 +203,7 @@ router.get('/video/:id', async (req, res) => {
             return res.json({ success: false });
         }
         await mongoose.disconnect();
-        res.render('videoPage.ejs', { video });
+        res.render('videoPage.ejs', { video, user });
     } catch (e) {
         await mongoose.disconnect();
         console.log('Error: ', e);
@@ -192,6 +211,7 @@ router.get('/video/:id', async (req, res) => {
 });
 
 router.post('/search', async (req,res) => {
+    const user = req.session.user;
     const { title } = req.query;
     try {
         await run().catch(console.dir);
@@ -211,6 +231,7 @@ router.post('/search', async (req,res) => {
 });
 
 router.post('/comment', async (req, res) => {
+    const user = req.session.user;
     const { text, username, video } = req.body;
     try {
         await run().catch(console.dir);
@@ -230,6 +251,7 @@ router.post('/comment', async (req, res) => {
 });
 
 router.post('/addVideo', async (req, res) => {
+    const user = req.session.user;
     const { title, author, imagePath, videoPath } = req.body;
     try {
         await run().catch(console.dir);
@@ -247,24 +269,7 @@ router.post('/addVideo', async (req, res) => {
     }
 });
 
-router.post('/comment', async (req, res) => {
-    const { author , video, text } = req.body;
-    try {
-        await run().catch(console.dir);
-        const success = await CommentDB.createComment({video, username: author, text });
-        if (success) {
-            await mongoose.disconnect();
-            res.json({ success: true });
-        } else {
-            await mongoose.disconnect();
-            res.json({ success: false });
-        }
-    } catch (e) {
-        await mongoose.disconnect();
-        console.log('Error: ', e)
-        res.json({ success: false });
-    }
-});
+
 
 router.post('/deleteComment', async (req, res) => {
     const { author , video, text } = req.body;
@@ -282,23 +287,6 @@ router.post('/deleteComment', async (req, res) => {
         await mongoose.disconnect();
         console.log('Error: ', e)
         res.json({ success: false });
-    }
-});
-
-router.get('/video/:id', async (req,res) => {
-    const id = req.params.id;
-    try {
-        await run().catch(console.dir);
-        const video = VideoDB.getVideoById({id});
-
-        if (!video) {
-            res.render('404.ejs');
-        }
-        await mongoose.disconnect();
-        res.render('videoPage.ejs', video);
-    } catch (e) {
-        await mongoose.disconnect();
-        console.log('Error: ', e);
     }
 });
 
