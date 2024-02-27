@@ -1,12 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const path = require("path");
 const UserDB = require("./frontend/db/user");
 const VideoDB = require("./frontend/db/video");
 const CommentDB = require("./frontend/db/comment");
 const randomString = require('randomstring');
 const nodemailer = require('nodemailer');
 const mongoose = require("mongoose");
+const uri = "mongodb+srv://userServer:flickfusion@webtech.w7gfa5d.mongodb.net/?retryWrites=true&w=majority&appName=WebTech";
+const clientOptions = { serverApi: { version: '1', strict: true, deprecationErrors: true } };
 
 async function run() {
     try {
@@ -111,6 +112,7 @@ router.put('/changePassword', async (req, res) => {
             return res.status(404);
         } else {
             changePasswordLinks.push({email, })
+            let link;
             await transporter.sendMail({
                 from: email,
                 to: 'webresponser@mail.ru',
