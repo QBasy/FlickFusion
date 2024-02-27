@@ -73,17 +73,17 @@ module.exports = {
         }
     },
 
-    getUserById: async (req, res) => {
-        const {id} = req.params;
+    getUserById: async (user) => {
+        const { id } = user;
         try {
             const user = await User.findById(id);
             if (!user) {
-                return res.status(404).json({ error: 'User not found' });
+                return false;
             }
-            res.json(user);
+            return user;
         } catch (error) {
             console.error('Error fetching user:', error);
-            res.status(500).json({ error: 'Internal server error' });
+            return false;
         }
     },
 

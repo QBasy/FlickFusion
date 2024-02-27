@@ -14,8 +14,13 @@
   <script>
     let concreteVideo = '<%= video %>';
     document.addEventListener('DOMContentLoaded', async function () {
-      fetch('/views++', {
-
+      const views = concreteVideo.views++;
+      await fetch('/views++', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ views, concreteVideo })
       });
     });
     async function addComment() {

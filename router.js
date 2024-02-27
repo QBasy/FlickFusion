@@ -7,7 +7,7 @@ const CommentDB = require("./frontend/db/comment");
 const randomString = require('randomstring');
 const nodemailer = require('nodemailer');
 const mongoose = require("mongoose");
-const uri = "mongodb+srv://userServer:flickfusion@webtech.w7gfa5d.mongodb.net/?retryWrites=true&w=majority&appName=WebTech";
+const uri = "mongodb+srv://userServer:flickfusion@webtech.w7gfa5d.mongodb.net/?retryWrites=true&w=majority&appName=test";
 const clientOptions = { serverApi: { version: '1', strict: true, deprecationErrors: true } };
 
 let changePasswordLinks = [];
@@ -162,19 +162,20 @@ router.post('/sendFeedback', async (req, res) => {
     }
 });
 
-router.get('/loginByUsername', async (req, res) => {
+router.post('/loginByUsername', async (req, res) => {
     const { username, password } = req.body;
-
     try {
         const userData = {
             username: req.body.username,
             password: req.body.password
         };
+
         await run().catch(console.dir);
+
         if (await UserDB.checkPassword(username, password)) {
             await mongoose.disconnect();
-            req.session.user = userData;
-            res.redirect('/profile');
+            res.json({ success: true });
+            //res.redirect('/profile');
         } else {
             await mongoose.disconnect();
             res.json({ success: false });
@@ -188,6 +189,16 @@ router.get('/loginByUsername', async (req, res) => {
 router.get('/profile', async (req, res) => {
     const user = req.session.user;
     res.render('profile.ejs', { user });
+});
+
+router.get(('/views++'), (req, res) => {
+    const views = req.body.views;
+    const videoID = req.body.concreteVideo.id;
+    try {
+        let video = VideoDB.getVideoById()
+    } catch (e) {
+        console.log('Error: ', e);
+    }
 });
 
 router.get('/video/:id', async (req, res) => {
