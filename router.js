@@ -13,7 +13,7 @@ const clientOptions = { serverApi: { version: '1', strict: true, deprecationErro
 let changePasswordLinks = [];
 
 router.use(session({
-    secret: 'your_secret_key',
+    secret: '25252528481',
     resave: false,
     saveUninitialized: false
 }));
