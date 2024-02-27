@@ -7,6 +7,7 @@ const videoSchema = new mongoose.Schema({
     title: String,
     author: String,
     uploadDate: String,
+    views: String,
     likes: String,
     comments: String,
     imagePath: String,
@@ -18,7 +19,7 @@ const Video = mongoose.model('Video', videoSchema);
 exports.createVideo = async ({ title, author, imagePath, videoPath }) => {
     try {
         const uploadDate = new Date().toDateString();
-        const newVideo = new Video({ title, author, uploadDate, likes: 0, comments: 0, imagePath, videoPath });
+        const newVideo = new Video({ title, author, uploadDate, views: 0, likes: 0, comments: 0, imagePath, videoPath });
         await newVideo.save();
         return true;
     } catch (error) {
@@ -56,9 +57,9 @@ exports.getAllVideos = async () => {
 };
 
 exports.updateVideoById = async ({id}, parameters) => {
-    const { title, imagePath } = parameters;
+    const { views, likes, comments } = parameters;
     try {
-        const updatedVideo = await Video.findByIdAndUpdate({ id }, { title: title , imagePath: imagePath });
+        const updatedVideo = await Video.findByIdAndUpdate({ id }, { views: views , likes: likes, comments: comments });
         if (!updatedVideo) {
             return false
         }

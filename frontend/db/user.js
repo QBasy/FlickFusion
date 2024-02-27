@@ -108,6 +108,11 @@ module.exports = {
                 return false;
             }
 
+            if (user.username !== username) {
+                console.log('User not found');
+                return false;
+            }
+
             const userPassword = user.password;
 
             const result = await bcrypt.compare(password, userPassword);

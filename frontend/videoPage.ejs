@@ -11,6 +11,19 @@
   <script src="https://kit.fontawesome.com/f5c7d6a886.js" crossorigin="anonymous"></script>
   <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
   <link href="css/style.css" rel="stylesheet" type="text/css">
+  <script>
+    let concreteVideo = '<%= video %>';
+    document.addEventListener('DOMContentLoaded', async function () {
+      fetch('/views++', {
+
+      });
+    });
+    async function addComment() {
+      const response = fetch('/addComment', {
+
+      });
+    }
+  </script>
 </head>
 
 <body>
@@ -85,9 +98,9 @@
         <div class="row statsRow pb-3 shadow bg-white rounded">
           <!-- Title and Views attached to the left side -->
           <div class="col-auto pt-1 px-2">
-            <div class="vjs-title-bar-title" id="videoTitle">Your Video Title</div>
-            <div class="totalViews" id="views">1000 views</div>
-            <div class="uploadDate" id="uploadDate">uploaded on 21.02.24</div>
+            <div class="vjs-title-bar-title" id="videoTitle"><%= video.title %></div>
+            <div class="totalViews" id="views"><%= video.views %></div>
+            <div class="uploadDate" id="uploadDate">uploaded on <%= video.uploadDate %>></div>
           </div>
 
           <!-- Author-related content attached to the right side -->

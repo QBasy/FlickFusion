@@ -9,6 +9,8 @@ const mongoose = require("mongoose");
 const uri = "mongodb+srv://userServer:flickfusion@webtech.w7gfa5d.mongodb.net/?retryWrites=true&w=majority&appName=WebTech";
 const clientOptions = { serverApi: { version: '1', strict: true, deprecationErrors: true } };
 
+let changePasswordLinks = [];
+
 async function run() {
     try {
         await mongoose.connect(uri, clientOptions);
@@ -170,8 +172,8 @@ router.get('/loginByUsername', async (req, res) => {
     }
 });
 
-router.get('/video', async (req, res) => {
-    const { videoId } = req.query;
+router.get('/video/:id', async (req, res) => {
+    const { videoId } = req.params.id;
 
     try {
         await run().catch(console.dir);
@@ -182,7 +184,7 @@ router.get('/video', async (req, res) => {
             return res.json({ success: false });
         }
         await mongoose.disconnect();
-        res.render('video.ejs', {video});
+        res.render('videoPage.ejs', { video });
     } catch (e) {
         await mongoose.disconnect();
         console.log('Error: ', e);
