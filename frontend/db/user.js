@@ -1,7 +1,6 @@
 const mongoose = require("mongoose");
 const bcrypt = require('bcrypt');
 
-mongoose.connect('mongodb://localhost:27017/FlickFusion').then(() => console.log('Connected'));
 
 const userSchema = new mongoose.Schema({
     id: String,

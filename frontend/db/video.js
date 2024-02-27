@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const path = __dirname + '/frontend/video/';
-mongoose.connect('mongodb://localhost:27017/FlickFusion').then(() => console.log('Connected'));
+
 
 const videoSchema = new mongoose.Schema({
     id: String,

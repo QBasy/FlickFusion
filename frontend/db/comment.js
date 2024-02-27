@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
 
-mongoose.connect('mongodb://localhost:27017/FlickFusion').then(() => console.log('Connected'));
 
 const commentSchema = new mongoose.Schema({
     id: String,
