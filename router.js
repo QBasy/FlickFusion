@@ -208,6 +208,7 @@ router.get('/video/:title', async (req, res) => {
         const video = await VideoDB.getVideoByTitle({ title });
 
         if (!video) {
+            console.log('FCK1');
             await mongoose.disconnect();
             return res.json({ success: false });
         }
@@ -216,8 +217,10 @@ router.get('/video/:title', async (req, res) => {
         await mongoose.disconnect();
         res.render('videoPage.ejs', { video, author });
     } catch (e) {
+        console.log('FCK2');
         await mongoose.disconnect();
         console.log('Error: ', e);
+        return res.json({ success: false });
     }
 });
 
