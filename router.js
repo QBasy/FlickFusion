@@ -18,6 +18,13 @@ router.use(session({
     saveUninitialized: false
 }));
 
+async function disconnect() {
+    try {
+        await mongoose.disconnect();
+    } catch (e) {
+        console.log('Error: ', e);
+    }
+}
 async function run() {
     try {
         await mongoose.connect(uri, clientOptions);
@@ -282,7 +289,49 @@ router.post('/addVideo', async (req, res) => {
     }
 });
 
+router.post('/getAllVideos', async (req, res) => {
+    try {
+        await run().catch(console.dir)
+        const allVideos = await VideoDB.getAllVideos();
 
+        console.log(allVideos);
+
+        if (!Array.isArray(allVideos)) {
+            console.error('Error: getAllVideos did not return an array');
+            await mongoose.disconnect();
+            return res.json({ allVideos });
+        }
+
+        let jsonData = [];
+
+        const videoPromises = allVideos.map(async video => {
+            const author = await UserDB.getUserByUsername({ username: video.author });
+            if (!author) {
+                console.error(`Error: No author found for video with author ${video.author}`);
+                await mongoose.disconnect();
+                return null;
+            }
+
+            const newVideo = {
+                title: video.title,
+                author: video.author,
+                avatarUrl: author.avatar,
+                cardViews: video.views,
+                imageURL: video.imagePath,
+                href: video.href
+            };
+            return newVideo;
+        });
+        await mongoose.disconnect();
+        const resolvedVideos = await Promise.all(videoPromises);
+        jsonData = resolvedVideos.filter(video => video !== null);
+
+        res.json(jsonData);
+    } catch (e) {
+        console.error('Error: ', e);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
 
 router.post('/deleteComment', async (req, res) => {
     const { author , video, text } = req.body;

@@ -26,24 +26,33 @@ function showPage(pageNumber) {
     currentPage = pageNumber;
     const start = (pageNumber - 1) * cardsPerPage;
     const end = pageNumber * cardsPerPage;
-    const pageCards = jsonData.slice(start, end);
+    let videoJsonData = fromDBtoJSON();
+    const pageCards = videoJsonData.slice(start, end);
 
-    const section = document.getElementById('videoRow');
-    section.innerHTML = ' ';
-    pageCards.forEach(cardData => {
-        const card = createCard(cardData.title, cardData.author, cardData.avatarUrl, cardData.cardViews, cardData.imageURL);
-        if (cardData.href !== undefined) {
-            section.addEventListener('click', () => ( window.location.href = cardData.href ));
+    const section = document.getElementsByClassName('videoRow');
+
+    if (section.length > 0) {
+        Array.from(section).forEach(section => {
+            section.innerHTML = '';
+            pageCards.forEach(cardData => {
+                const card = createCard(cardData.title, cardData.author, cardData.avatarUrl, cardData.cardViews, cardData.imageURL);
+                if (section.href !== undefined) {
+                    section.addEventListener('click', () => ( window.location.href = '/video/' + card.title ));
+                }
+                section.appendChild(card);
+            });
+        });
+
+        const pageSelector = document.querySelector('.page-selector');
+        if (pageSelector) {
+            pageSelector.remove();
         }
-        section.appendChild(card);
-    });
 
-    const pageSelector = document.querySelector('.page-selector');
-    if (pageSelector) {
-        pageSelector.remove();
-    }
-    if (Math.ceil(jsonData.length / cardsPerPage) > 1) {
-        section.parentElement.appendChild(createPageSelector(Math.ceil(jsonData.length / cardsPerPage)));
+        if (Math.ceil(videoJsonData.length / cardsPerPage) > 1) {
+            Array.from(section)[0].parentElement.appendChild(createPageSelector(Math.ceil(videoJsonData.length / cardsPerPage)));
+        }
+    } else {
+        console.error("No elements found with class 'videoRow'");
     }
 }
 
@@ -52,10 +61,10 @@ function createCard(title, author, avatarUrl, cardViews, imageURL) {
     col.classList.add('col', 'mb-5');
 
     const card = document.createElement('div');
-    card.classList.add('card', 'h-100');
+    card.classList.add('card', 'h-100', 'card-rounded');
 
     const img = document.createElement('img');
-    img.classList.add('card-img-top');
+    img.classList.add('card-img-top', 'card-img-rounded');
     img.src = imageURL;
     img.alt = title;
 
@@ -108,7 +117,36 @@ function createCard(title, author, avatarUrl, cardViews, imageURL) {
     return col;
 }
 
-// json for testing
+async function getVideos() {
+    const response = await fetch('/getAllVideos', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+    }).then(response => console.log(response));
+    return response
+}
+
+async function fromDBtoJSON() {
+    const dbData = await getVideos();
+    let newJsonData = []
+    await dbData.forEach(newData => {
+        const newVideo = {
+            title: newData.title,
+            author: newData.author,
+            avatarUrl: newData.avatar,
+            cardViews: newData.views,
+            imageURL: newData.imagePath,
+            href: newData.href
+        };
+        newJsonData.push(newVideo);
+    });
+console.log(newJsonData);
+    return newJsonData
+}
+
+const newJson = fromDBtoJSON();
+
 const jsonData = [
     {
         "title": "BAUBEKPIDOR",
@@ -117,6 +155,13 @@ const jsonData = [
         "cardViews": "2 weeks ago",
         "imageURL": "video/imagePath/cs2_gameplay.png",
         "href": "/video/BAUBEKPIDOR"
+    },
+    {
+        "title": "Jujutsu Kaisen S1EP2",
+        "author": "megaTerminator228",
+        "avatarUrl": "https://dummyimage.com/450x300/dee2e6/6c757d.jpg",
+        "cardViews": "2 weeks ago",
+        "imageURL": "https://dummyimage.com/450x300/dee2e6/6c757d.jpg"
     },
     {
         "title": "Interstellar",
@@ -142,35 +187,35 @@ const jsonData = [
     {
         "title": "Atomic Heart Walkthrough #1",
         "author": "Storm",
-        "avatarUrl": "./img/toji.png",
+        "avatarUrl": "./img/toji.jpg",
         "cardViews": "1 129 views",
         "imageURL": "https://dummyimage.com/450x300/dee2e6/6c757d.jpg"
     },
     {
         "title": "CS2 Premier Gaming 20K",
         "author": "Storm",
-        "avatarUrl": "./img/toji.png",
+        "avatarUrl": "./img/toji.jpg",
         "cardViews": "23 451 views",
         "imageURL": "https://dummyimage.com/450x300/dee2e6/6c757d.jpg"
     },
     {
         "title": "RDR2 Chapter 2 | New Friend!",
         "author": "Storm",
-        "avatarUrl": "./img/toji.png",
+        "avatarUrl": "./img/toji.jpg",
         "cardViews": "13 785 views",
         "imageURL": "https://dummyimage.com/450x300/dee2e6/6c757d.jpg"
     },
     {
         "title": "Satisfactory | Level 4 | New Logistics System",
         "author": "Storm",
-        "avatarUrl": "./img/toji.png",
+        "avatarUrl": "./img/toji.jpg",
         "cardViews": "1 459 views",
         "imageURL": "https://dummyimage.com/450x300/dee2e6/6c757d.jpg"
     },
     {
         "title": "Dark Souls | Smoug & Ornstein!",
         "author": "Storm",
-        "avatarUrl": "./img/toji.png",
+        "avatarUrl": "./img/toji.jpg",
         "cardViews": "34 983 views",
         "imageURL": "https://dummyimage.com/450x300/dee2e6/6c757d.jpg"
     },
@@ -205,7 +250,7 @@ const jsonData = [
     {
         "title": "Darkest Dungeon | Nameless Abomination",
         "author": "Storm",
-        "avatarUrl": "./img/toji.png",
+        "avatarUrl": "./img/toji.jpg",
         "cardViews": "15 741 views",
         "imageURL": "https://dummyimage.com/450x300/dee2e6/6c757d.jpg"
     },

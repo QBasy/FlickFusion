@@ -43,16 +43,22 @@ exports.getVideoByTitle = async ({ title }) => {
 
 exports.getAllVideos = async () => {
     try {
-        Video.find({}, function (err, videos) {
-            let VideoMap = {};
+        const videos = [];
+        const found = await Video.find({});
 
-            videos.forEach(function (video) {
-                VideoMap[video._id] = video;
+        if (found.length === 1) {
+            videos.push(found[0]);
+        } else {
+            found.forEach(video => {
+                videos.push(video);
             });
-            return VideoMap;
-        });
+        }
+
+        console.log(videos);
+        return videos;
     } catch (e) {
-        console.error('Error updating Video: ', e);
+        console.error('Error retrieving videos: ', e);
+        throw e;
     }
 };
 
