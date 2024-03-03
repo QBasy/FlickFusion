@@ -75,7 +75,7 @@ function createCard(title, author, avatarUrl, cardViews, imageURL) {
     const card = document.createElement('div');
     card.classList.add('card', 'h-100', 'card-rounded');
     const href = document.createElement('a');
-    href.href = `/videos/videoPath/${title}`;
+    href.href = `/video/${title}`;
 
     const img = document.createElement('img');
     img.classList.add('card-img-top', 'card-img-rounded');
