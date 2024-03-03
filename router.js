@@ -291,7 +291,7 @@ router.get(('/searchVideo'), async (req, res) => {
         return res.json({ success: false });
     }
 });
-router.get('/video/:title', verifyToken, async (req, res) => {
+router.get('/video/:title', async (req, res) => {
     const user = req.user;
     const { title } = req.params;
 

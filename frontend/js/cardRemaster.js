@@ -1,32 +1,39 @@
 const cardsPerPage = 12;
-const page = 1;
 let currentPage;
 
-document.addEventListener('DOMContentLoaded', async function() {
+document.addEventListener('DOMContentLoaded', async function () {
     try {
-        await showPage(page);
+        await showPage(1);
     } catch (e) {
-        console.log('Error: ', e)
+        console.error('Error: ', e);
     }
 });
-function createPageSelector(totalPages) {
-    const pageSelector = document.createElement('div');
-    pageSelector.classList.add('page-selector');
-    pageSelector.classList.add('text-center');
-    for (let i = 1; i <= totalPages; i++) {
-        const pageButton = document.createElement('button');
-        pageButton.textContent = i;
-        pageButton.setAttribute('type', 'button');
-        pageButton.classList.add('btn', 'btn-outline-none');
-        if (i === currentPage) {
-            pageButton.classList.add('current-page-button');
-        }
-        pageButton.addEventListener('click', () => {
-            showPage(i);
-        });
-        pageSelector.appendChild(pageButton);
-    }
-    return pageSelector;
+
+async function getVideos() {
+    const response = await fetch('/getAllVideos', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+    });
+    return response.json();
+}
+
+async function fromDBtoJSON() {
+    const dbData = await getVideos();
+    let newJsonData = [];
+    dbData.forEach(newData => {
+        const newVideo = {
+            title: newData.title,
+            author: newData.author,
+            avatarUrl: newData.avatarUrl,
+            cardViews: newData.cardViews,
+            imageURL: newData.imageURL,
+            href: newData.href
+        };
+        newJsonData.push(newVideo);
+    });
+    return newJsonData;
 }
 
 async function showPage(pageNumber) {
@@ -41,31 +48,22 @@ async function showPage(pageNumber) {
     }
 
     const pageCards = videoJsonData.slice(start, end);
-    const section = document.getElementsByClassName('videoRow');
+    const section = document.querySelector('.videoRow');
 
-    if (section.length > 0) {
-        Array.from(section).forEach(section => {
-            section.innerHTML = '';
-            pageCards.forEach(cardData => {
-                const card = createCard(cardData.title, cardData.author, cardData.avatarUrl, cardData.cardViews, cardData.imageURL);
-                if (section.href !== undefined) {
-                    section.addEventListener('click', () => ( window.location.href = '/video/' + card.title ));
-                }
-                section.appendChild(card);
-            });
-        });
-
-        const pageSelector = document.querySelector('.page-selector');
-        if (pageSelector) {
-            pageSelector.remove();
-        }
-
-        if (Math.ceil(videoJsonData.length / cardsPerPage) > 1) {
-            Array.from(section)[0].parentElement.appendChild(createPageSelector(Math.ceil(videoJsonData.length / cardsPerPage)));
-        }
-    } else {
-        console.error("No elements found with class 'videoRow'");
+    if (!section) {
+        console.error("No element found with class 'videoRow'");
+        return;
     }
+
+    section.innerHTML = '';
+
+    pageCards.forEach(cardData => {
+        const card = createCard(cardData.title, cardData.author, cardData.avatarUrl, cardData.cardViews, cardData.imageURL);
+        card.addEventListener('click', () => {
+            window.location.href = `/video/${cardData.title}`;
+        });
+        section.appendChild(card);
+    });
 }
 
 function createCard(title, author, avatarUrl, cardViews, imageURL) {
@@ -93,10 +91,10 @@ function createCard(title, author, avatarUrl, cardViews, imageURL) {
     avatar.src = avatarUrl;
     avatar.alt = "Avatar Picture";
     avatar.style.width = "40px";
-    avatar.style.heigt = "40px";
+    avatar.style.height = "40px";
 
     const cardInfo = document.createElement('div');
-
+    cardInfo.classList.add('flex-grow-1', 'ms-2');
 
     const cardTitle = document.createElement('h5');
     cardTitle.classList.add('h6', 'mb-0');
@@ -112,7 +110,7 @@ function createCard(title, author, avatarUrl, cardViews, imageURL) {
     cardView.classList.add('card-text', 'cardViews');
     cardView.textContent = cardViews;
 
-    cardAuthor.appendChild(authorName)
+    cardAuthor.appendChild(authorName);
 
     cardInfo.appendChild(cardTitle);
     cardInfo.appendChild(cardAuthor);
@@ -133,36 +131,7 @@ function createCard(title, author, avatarUrl, cardViews, imageURL) {
     return col;
 }
 
-async function getVideos() {
-    const response = await fetch('/getAllVideos', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-    });
-    console.log(response);
-    return response.json();
-}
-
-async function fromDBtoJSON() {
-    const dbData = await getVideos();
-    let newJsonData = []
-    await dbData.forEach(newData => {
-        const newVideo = {
-            title: newData.title,
-            author: newData.author,
-            avatarUrl: newData.avatarUrl,
-            cardViews: newData.cardViews,
-            imageURL: newData.imageURL,
-            href: newData.href
-        };
-        newJsonData.push(newVideo);
-    });
-console.log(newJsonData);
-    return newJsonData
-}
-
-const jsonData = [
+    const jsonData = [
     {
         "title": "BAUBEKPIDOR",
         "author": "1337Dumanchik",
