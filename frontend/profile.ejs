@@ -16,11 +16,11 @@
 <body>
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg navbar-light shadow">
-  <div class="container px-4 px-lg-5"><a class="navbar-brand" href="index.html" id="siteTitle">FlickFusion</a><button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+  <div class="container px-4 px-lg-5"><a class="navbar-brand" href="/" id="siteTitle">FlickFusion</a><button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
     <div
       class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
-        <li class="nav-item"><a class="nav-link" aria-current="page" href="index.html">Home</a></li>
+        <li class="nav-item"><a class="nav-link" aria-current="page" href="/">Home</a></li>
         <li class="nav-item dropdown"><a class="nav-link dropdown-toggle" id="navbarDropdownWatch" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Watch</a>
           <ul class="dropdown-menu" aria-labelledby="navbarDropdownWatch">
             <li><a class="dropdown-item" href="#">Movies</a></li>
@@ -32,7 +32,7 @@
             <li><a class="dropdown-item" href="#">Memes</a></li>
           </ul>
         </li>
-        <li class="nav-item"><a class="nav-link" href="feedback.html">Feedback</a></li>
+        <li class="nav-item"><a class="nav-link" href="/feedback">Feedback</a></li>
       </ul>
 
       <div class="dropdown">
@@ -58,15 +58,11 @@
 <!-- profile info -->
 <section class="container my-5 py-4 border">
   <div class="row align-items-center">
-    <div class="col-auto">
+    <div class="col-auto" id="img">
       <img src="img/toji.jpg" alt="avatar" id="profileAvatar">
     </div>
     <div class="col-auto">
       <h1 id="username">Storm</h1>
-      <p id="subCount">144 subscribers</p>
-    </div>
-    <div class="col-auto ms-auto">
-      <button class="btn-lg" id="subButton">Subscribe</button>
     </div>
   </div>
 </section>
@@ -101,7 +97,7 @@
   <div class="showHider" id="userContent">
     <div class="">
       <div class="container px-4 px-lg-5 mt-5">
-        <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center videoRow">
+        <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center videoRow" id="videoRow">
 
         </div>
       </div>
@@ -135,6 +131,7 @@
   </div>
 </footer>
 
+<script src="js/profile.js"></script>
 <script src="js/scripts.js"></script>
 <script src="js/cardRemaster.js"></script>
 </body>

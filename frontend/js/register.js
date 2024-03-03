@@ -119,18 +119,22 @@ function restoreValidation(){
 
 async function loginFetch(username, password) {
   try {
-    const response = await fetch('/loginByUsername', {
+    const token = localStorage.getItem('token');
+    console.log('Token:', token);
+    
+    const response = (await fetch('/loginByUsername', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
       },
-      body: JSON.stringify({ username, password })
-    });
-    if (!response.status) {
-      console.log('Error on creating new User');
-    }
-    console.log(response);
-    return response.ok;
+      body: JSON.stringify({username, password})
+    }));
+
+    const data = await response.json();
+
+    console.log(data);
+    return data.success;
   } catch (e) {
     console.log('Error: ', e);
     return false;
@@ -148,7 +152,7 @@ async function login() {
       window.location.href = '/index';
     }
     else {
-      document.getElementById("result").innerHTML="Enter Correct Password!";
+      document.getElementById("result").innerHTML="Enter Correct Password or Username!";
       console.log('FetchError');
     }
   } else {

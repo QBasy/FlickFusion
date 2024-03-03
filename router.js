@@ -1,7 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const session = require('express-session');
+const jwt = require('jsonwebtoken');
 const UserDB = require("./frontend/db/user");
+const multer = require('multer');
+const path = require('path');
 const VideoDB = require("./frontend/db/video");
 const CommentDB = require("./frontend/db/comment");
 const randomString = require('randomstring');
@@ -10,13 +12,29 @@ const mongoose = require("mongoose");
 const uri = "mongodb+srv://userServer:flickfusion@webtech.w7gfa5d.mongodb.net/?retryWrites=true&w=majority&appName=test";
 const clientOptions = { serverApi: { version: '1', strict: true, deprecationErrors: true } };
 
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        if (file.fieldname === 'video') {
+            cb(null, __dirname + '/frontend/video');
+        } else if (file.fieldname === 'image') {
+            cb(null, __dirname + '/frontend/image');
+        } else {
+            cb(new Error('Invalid fieldname'), null);
+        }
+    },
+    filename: function (req, file, cb) {
+        const title = req.body.title;
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        const filename = title.replace(/\s/g, '-') + '-' + uniqueSuffix + path.extname(file.originalname);
+        cb(null, filename);
+    }
+});
+
+const upload = multer({ storage: storage });
+
 let changePasswordLinks = [];
 
-router.use(session({
-    secret: '25252528481',
-    resave: false,
-    saveUninitialized: false
-}));
+const secretKey = 'SCRTKey123';
 
 async function disconnect() {
     try {
@@ -48,7 +66,7 @@ router.get('/', (req, res) => {
 });
 
 router.get('/index', (req, res) => {
-    const user = req.session.user;
+    const user = req.user;
     res.render('index.ejs', { user });
 });
 
@@ -178,36 +196,103 @@ router.post('/loginByUsername', async (req, res) => {
 
         await run().catch(console.dir);
 
+        const user = UserDB.getUserByUsername({ username: username });
         if (await UserDB.checkPassword(username, password)) {
             await mongoose.disconnect();
-            res.json({ success: true });
+            const token = jwt.sign({ userId: user._id, username: user.username }, secretKey, { expiresIn: '1h' });
+            res.json({ success: true, token });
         } else {
             await mongoose.disconnect();
-            res.json({ success: false });
+            res.json({ success: false, message: 'Internal Server Error' });
         }
     } catch (e) {
         await mongoose.disconnect();
         console.log('Error: ', e);
+        res.json({ success: false, message: 'Internal Server Error' });
     }
 });
 
-router.get('/profile', async (req, res) => {
-    const user = req.session.user;
-    res.render('profile.ejs', { user });
+function verifyToken(req, res, next) {
+    const token = req.headers['authorization'];
+    if (!token) {
+        return res.status(401).json({ success: false, message: 'Token not provided' });
+    }
+    jwt.verify(token, secretKey, (err, decoded) => {
+        if (err) {
+            return res.status(403).json({ success: false, message: 'Failed to authenticate token' });
+        }
+        req.user = decoded;
+        next();
+    });
+}
+
+router.get('/api/user', verifyToken, async (req, res) => {
+    const userId = req.user.userId;
+    try {
+        const user = await UserDB.getUserById(userId);
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+        res.json({ success: true, user });
+    } catch (error) {
+        console.error('Error retrieving user information:', error);
+        res.status(500).json({ success: false, message: 'Internal Server Error' });
+    }
 });
 
-router.get(('/addViews'), (req, res) => {
-    const views = req.body.views;
-    const videoID = req.body.concreteVideo.id;
+router.get('/profile', verifyToken, async (req, res) => {
     try {
-        let video = VideoDB.getVideoById()
+        const user = req.user;
+        res.render('profile', { user });
     } catch (e) {
         console.log('Error: ', e);
+        res.status(500).json({ success: false, message: 'Internal Server Error' });
     }
 });
 
-router.get('/video/:title', async (req, res) => {
-    const user = req.session.user;
+router.get(('/getProfile'),async (req, res) => {
+    const user = req.user;
+
+    try {
+        await run().catch(console.dir);
+        const user = await UserDB.getUserByUsername({ username: user.username });
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+
+        const videos = await VideoDB.getAllVideoByUser({ user });
+        await mongoose.disconnect();
+
+        const userProfile = {
+            username: user.username,
+            avatar: user.avatar,
+            videos: videos
+        };
+
+        res.json({ success: true, userProfile });
+    } catch (e) {
+        console.log('Error: ', e);
+        res.status(500).json({ success: false, message: 'Internal Server Error' });
+    }
+});
+
+router.get(('/searchVideo'), async (req, res) => {
+    const { searchInput, user } = req.body;
+
+    try {
+        const videos = VideoDB.getAllVideoByUser({ username: user });
+
+        videos.forEach(video => {
+            
+        });
+    } catch (e) {
+        await mongoose.disconnect();
+        console.log('Error: ', e);
+        return res.json({ success: false });
+    }
+});
+router.get('/video/:title', verifyToken, async (req, res) => {
+    const user = req.user;
     const { title } = req.params;
 
     try {
@@ -271,12 +356,17 @@ router.post('/comment', async (req, res) => {
     }
 });
 
-router.post('/addVideo', async (req, res) => {
-    const { title, author, imagePath, videoPath } = req.body;
+router.post('/addVideo', upload.fields([{ name: 'video', maxCount: 1 }, { name: 'image', maxCount: 1 }]), async (req, res) => {
+    const { title, author } = req.body;
+    const videoFile = req.files['video'][0];
+    const imageFile = req.files['image'][0];
+
     try {
         await run().catch(console.dir);
-        let success = await VideoDB.createVideo({ title, author, imagePath, videoPath });
-        if (success) {
+
+        let videoSuccess = await VideoDB.createVideo({ title, author, imagePath: imageFile.filename, videoPath: videoFile.filename });
+
+        if (videoSuccess) {
             await mongoose.disconnect();
             res.json({ success: true });
         } else {
@@ -317,9 +407,11 @@ router.post('/getAllVideos', async (req, res) => {
                 author: video.author,
                 avatarUrl: author.avatar,
                 cardViews: video.views,
-                imageURL: video.imagePath,
-                href: video.href
+                imageURL: ('/video' + video.imagePath),
+                href: ('/video/videoPath' + video.title),
             };
+            console.log(newVideo);
+            await mongoose.disconnect();
             return newVideo;
         });
         await mongoose.disconnect();
@@ -331,6 +423,23 @@ router.post('/getAllVideos', async (req, res) => {
         console.error('Error: ', e);
         res.status(500).json({ error: 'Internal Server Error' });
     }
+});
+
+router.get(('/profile/:username'), (req, res) => {
+    const username = req.params;
+    try {
+        const user = UserDB.getUserByUsername({ username });
+        if (!user) {
+            res.redirect('/404').json({ success: false });
+        }
+    } catch (e) {
+        console.log('Error: ', e)
+        res.render('404.ejs');
+    }
+});
+
+router.get(('/404'), (req, res) => {
+    res.render('404.ejs');
 });
 
 router.post('/deleteComment', async (req, res) => {

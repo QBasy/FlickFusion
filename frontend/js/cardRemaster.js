@@ -1,7 +1,14 @@
 const cardsPerPage = 12;
-let firstPage = 1;
+const page = 1;
 let currentPage;
 
+document.addEventListener('DOMContentLoaded', async function() {
+    try {
+        await showPage(page);
+    } catch (e) {
+        console.log('Error: ', e)
+    }
+});
 function createPageSelector(totalPages) {
     const pageSelector = document.createElement('div');
     pageSelector.classList.add('page-selector');
@@ -22,13 +29,18 @@ function createPageSelector(totalPages) {
     return pageSelector;
 }
 
-function showPage(pageNumber) {
+async function showPage(pageNumber) {
     currentPage = pageNumber;
     const start = (pageNumber - 1) * cardsPerPage;
     const end = pageNumber * cardsPerPage;
-    let videoJsonData = fromDBtoJSON();
-    const pageCards = videoJsonData.slice(start, end);
+    const videoJsonData = await fromDBtoJSON();
 
+    if (!Array.isArray(videoJsonData)) {
+        console.error('Error: fromDBtoJSON did not return an array');
+        return;
+    }
+
+    const pageCards = videoJsonData.slice(start, end);
     const section = document.getElementsByClassName('videoRow');
 
     if (section.length > 0) {
@@ -123,8 +135,9 @@ async function getVideos() {
         headers: {
             'Content-Type': 'application/json'
         },
-    }).then(response => console.log(response));
-    return response
+    });
+    console.log(response);
+    return response.json();
 }
 
 async function fromDBtoJSON() {
@@ -134,9 +147,9 @@ async function fromDBtoJSON() {
         const newVideo = {
             title: newData.title,
             author: newData.author,
-            avatarUrl: newData.avatar,
-            cardViews: newData.views,
-            imageURL: newData.imagePath,
+            avatarUrl: newData.avatarUrl,
+            cardViews: newData.cardViews,
+            imageURL: newData.imageURL,
             href: newData.href
         };
         newJsonData.push(newVideo);
@@ -144,8 +157,6 @@ async function fromDBtoJSON() {
 console.log(newJsonData);
     return newJsonData
 }
-
-const newJson = fromDBtoJSON();
 
 const jsonData = [
     {
@@ -270,4 +281,3 @@ const jsonData = [
     },
 ];
 
-showPage(firstPage);

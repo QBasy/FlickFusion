@@ -28,6 +28,27 @@ exports.createVideo = async ({ title, author, imagePath, videoPath }) => {
     }
 };
 
+exports.getAllVideoByUser = async ({ username }) => {
+    try {
+        const videos = [];
+        const found = await Video.find({ author: username });
+        if (!found) {
+            return null;
+        }
+        if (found.length === 1) {
+            videos.push(found[0]);
+        } else {
+            found.forEach(video => {
+                videos.push(video);
+            });
+        }
+        return videos;
+    } catch (e) {
+        console.error('Error fetching Video: ', e);
+        return null;
+    }
+};
+
 exports.getVideoByTitle = async ({ title }) => {
     try {
         const video = await Video.findOne({ title });
@@ -44,7 +65,7 @@ exports.getVideoByTitle = async ({ title }) => {
 exports.getAllVideos = async () => {
     try {
         const videos = [];
-        const found = await Video.find({});
+        const found = await Video.find({ });
 
         if (found.length === 1) {
             videos.push(found[0]);
@@ -53,8 +74,6 @@ exports.getAllVideos = async () => {
                 videos.push(video);
             });
         }
-
-        console.log(videos);
         return videos;
     } catch (e) {
         console.error('Error retrieving videos: ', e);
