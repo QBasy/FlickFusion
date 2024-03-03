@@ -242,8 +242,7 @@ router.get('/api/user', verifyToken, async (req, res) => {
 
 router.get('/profile', verifyToken, async (req, res) => {
     try {
-        const user = req.user;
-        res.render('profile', { user });
+        res.render('profile');
     } catch (e) {
         console.log('Error: ', e);
         res.status(500).json({ success: false, message: 'Internal Server Error' });
