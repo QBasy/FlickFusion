@@ -74,6 +74,8 @@ function createCard(title, author, avatarUrl, cardViews, imageURL) {
 
     const card = document.createElement('div');
     card.classList.add('card', 'h-100', 'card-rounded');
+    const href = document.createElement('a');
+    href.href = `/videos/videoPath/${title}`;
 
     const img = document.createElement('img');
     img.classList.add('card-img-top', 'card-img-rounded');
@@ -121,7 +123,9 @@ function createCard(title, author, avatarUrl, cardViews, imageURL) {
     cardBody.appendChild(cardAvatar);
     cardBody.appendChild(cardView);
 
-    card.appendChild(img);
+    href.appendChild(img);
+
+    card.appendChild(href);
     card.appendChild(cardBody);
 
     col.appendChild(card);
